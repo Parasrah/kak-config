@@ -1,3 +1,5 @@
+set-option -add global autoinfo normal
+
 colorscheme gruvbox
 
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
@@ -26,3 +28,5 @@ hook global WinSetOption filetype=(elixir|elm|javascript|typescript) %{
     lsp-enable-window
     lsp-auto-hover-enable
 }
+
+set-option -add global startup_info_version 20200604
