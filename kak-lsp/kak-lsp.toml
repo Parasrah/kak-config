@@ -131,13 +131,12 @@ args = ["-c", "dart $(dirname $(which dart))/snapshots/analysis_server.dart.snap
 filetypes = ["elm"]
 roots = ["elm.json"]
 command = "elm-language-server"
-args = ["--stdio"]
 
 [language.elm.initialization_options]
-runtime = "node"
 elmPath = "elm"
 elmFormatPath = "elm-format"
 elmTestPath = "elm-test"
+elmAnalyseTrigger = "change"
 
 [language.latex]
 filetypes = ["latex"]

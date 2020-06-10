@@ -1,3 +1,4 @@
 /plugins/
 !/plugins/plug.kak
 /autoload/sys
+.fzf-projects
