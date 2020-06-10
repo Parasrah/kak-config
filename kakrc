@@ -8,6 +8,7 @@
 # TODO: make Y copy (not yank)
 # TODO: make <c-w> go back wordwise in fzf
 # TODO: how to replicate R from vim?
+# TODO: add margin on left
 colorscheme gruvbox
 
 set-option -add global autoinfo normal
@@ -28,18 +29,16 @@ hook global NormalKey y %{ nop %sh{
 
 # lsp hover
 hook global RawKey k %{
-    echo -debug Pressed %val{hook_param}
-    set-option buffer lsp_show_hover_format 'printf %s "${lsp_info}"'
+    set-option window lsp_show_hover_format 'printf %s "${lsp_info}"'
 }
 
 hook global RawKey K %{
-    echo -debug Pressed %val{hook_param}
-    set-option buffer lsp_show_hover_format 'printf %s "${lsp_diagnostics}"'
+    set-option window lsp_show_hover_format 'printf %s "${lsp_diagnostics}"'
 }
 
 # filetypes
 hook global BufCreate kitty\.conf %{
-    set-option buffer filetype ini
+    set-option window filetype ini
 }
 
 ################ commands #################
@@ -136,7 +135,10 @@ plug "andreyorst/plug.kak" noload
 plug "ul/kak-lsp" do %{
         cargo install --locked --force --path .
 } config %{
-    set global lsp_hover_anchor true
+    set-option global lsp_hover_anchor true
+    set-option global lsp_diagnostic_line_error_sign '✗'
+    set-option global lsp_diagnostic_line_warning_sign '⚠'
+
     # debug
     # set global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
     hook global WinSetOption filetype=(elixir|elm|javascript|typescript) %{
@@ -156,11 +158,17 @@ plug "andreyorst/fzf.kak" config %{
     set-option global fzf_grep_command "rg --hidden --smart-case --line-number --no-column --no-heading --color=never ''"
 }
 
+# TODO: shouldn't be difficult to replace this
 plug "andreyorst/smarttab.kak" defer smarttab %{
 } config %{
+    # softtabstop
+    hook global WinSetOption indentwidth=([0-9]+) %{
+        echo -debug setting softtabstop to %val{hook_param_capture_1}
+        set-option window softtabstop %val{hook_param_capture_1}
+    }
+
     # TODO: inverse of below
     hook global WinSetOption filetype=(elixir|javascript|typescript|rust|nix|kak|elm) expandtab
-    # hook global WinSetOption filetype=(elixir|javascript|typescript|rust) softtabstop 2
     hook global WinSetOption filetype=(makefile) noexpandtab
 }
 
@@ -168,4 +176,8 @@ plug "alexherbo2/surround.kak" defer surround %{
 } config %{
     map global user s ': surround<ret>' -docstring 'Enter surround mode'
     map global user S ': surround _ _ * *<ret>' -docstring 'Enter surround mode with extra surrounding pairs'
+}
+
+plug "eraserhd/kak-ansi" do %{
+    make
 }
