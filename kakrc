@@ -12,7 +12,8 @@
 colorscheme gruvbox
 
 set-option -add global autoinfo normal
-set-option -add global startup_info_version 20200604
+set-option global startup_info_version 20200604
+set-option global ui_options ncurses_assistant=cat
 
 map global normal <space> , -docstring 'leader'
 map global normal , <space> -docstring 'remove all selections except main'
@@ -158,13 +159,13 @@ plug "andreyorst/fzf.kak" config %{
     set-option global fzf_grep_command "rg --hidden --smart-case --line-number --no-column --no-heading --color=never ''"
 }
 
-# TODO: shouldn't be difficult to replace this
 plug "andreyorst/smarttab.kak" defer smarttab %{
 } config %{
     # softtabstop
     hook global WinSetOption indentwidth=([0-9]+) %{
         echo -debug setting softtabstop to %val{hook_param_capture_1}
-        set-option window softtabstop %val{hook_param_capture_1}
+        # TODO: only do if softtabstop exists
+        # set-option window softtabstop %val{hook_param_capture_1}
     }
 
     # TODO: inverse of below

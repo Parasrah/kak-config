@@ -43,6 +43,22 @@ filetypes = ["rust"]
 roots = ["Cargo.toml"]
 command = "rls"
 
+[language.elixir]
+filetypes = ["elixir"]
+roots = ["mix.exs"]
+command = "${KAKCONFIG}/bin/language_server.sh"
+
+[language.elm]
+filetypes = ["elm"]
+roots = ["elm.json"]
+command = "elm-language-server"
+
+[language.elm.initialization_options]
+elmPath = "elm"
+elmFormatPath = "elm-format"
+elmTestPath = "elm-test"
+elmAnalyseTrigger = "change"
+
 [language.typescript]
 filetypes = ["typescript"]
 roots = ["tsconfig.json"]
@@ -126,17 +142,6 @@ filetypes = ["dart"]
 roots = ["pubspec.yaml", ".git"]
 command = "sh"
 args = ["-c", "dart $(dirname $(which dart))/snapshots/analysis_server.dart.snapshot --lsp"]
-
-[language.elm]
-filetypes = ["elm"]
-roots = ["elm.json"]
-command = "elm-language-server"
-
-[language.elm.initialization_options]
-elmPath = "elm"
-elmFormatPath = "elm-format"
-elmTestPath = "elm-test"
-elmAnalyseTrigger = "change"
 
 [language.latex]
 filetypes = ["latex"]
