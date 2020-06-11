@@ -38,15 +38,10 @@ readonly = "default+d"
 # set to 0 to disable
 timeout = 1800 # seconds = 30 minutes
 
-[language.rust]
-filetypes = ["rust"]
-roots = ["Cargo.toml"]
-command = "rls"
-
 [language.elixir]
 filetypes = ["elixir"]
 roots = ["mix.exs"]
-command = "${KAKCONFIG}/bin/language_server.sh"
+command = "elixir-language-server"
 
 [language.elm]
 filetypes = ["elm"]
@@ -92,6 +87,25 @@ roots = ["package.json"]
 command = "html-languageserver"
 args = ["--stdio"]
 
+[language.bash]
+filetypes = ["sh"]
+roots = [".git", ".hg"]
+command = "bash-language-server"
+args = ["start"]
+
+[language.rust]
+filetypes = ["rust"]
+roots = ["Cargo.toml"]
+command = "rls"
+
+[language.python]
+filetypes = ["python"]
+roots = ["requirements.txt", "setup.py", ".git", ".hg"]
+command = "pyls"
+offset_encoding = "utf-8"
+
+# unused
+
 [language.ocaml]
 filetypes = ["ocaml"]
 roots = ["Makefile", "opam", "*.opam", "dune"]
@@ -103,12 +117,6 @@ filetypes = ["reason"]
 roots = ["package.json", "Makefile", ".git", ".hg"]
 command = "ocaml-language-server"
 args = ["--stdio"]
-
-[language.python]
-filetypes = ["python"]
-roots = ["requirements.txt", "setup.py", ".git", ".hg"]
-command = "pyls"
-offset_encoding = "utf-8"
 
 [language.c_cpp]
 filetypes = ["c", "cpp"]
@@ -129,12 +137,6 @@ filetypes = ["go"]
 roots = ["Gopkg.toml", "go.mod", ".git", ".hg"]
 command = "gopls"
 offset_encoding = "utf-8"
-
-[language.bash]
-filetypes = ["sh"]
-roots = [".git", ".hg"]
-command = "bash-language-server"
-args = ["start"]
 
 [language.dart]
 # start shell to find path to dart analysis server source

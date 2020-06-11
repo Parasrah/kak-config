@@ -165,7 +165,7 @@ plug "andreyorst/smarttab.kak" defer smarttab %{
     hook global WinSetOption indentwidth=([0-9]+) %{
         echo -debug setting softtabstop to %val{hook_param_capture_1}
         # TODO: only do if softtabstop exists
-        # set-option window softtabstop %val{hook_param_capture_1}
+        set-option window softtabstop %val{hook_param_capture_1}
     }
 
     # TODO: inverse of below
@@ -182,3 +182,5 @@ plug "alexherbo2/surround.kak" defer surround %{
 plug "eraserhd/kak-ansi" do %{
     make
 }
+
+plug "alexherbo2/connect.kak"
