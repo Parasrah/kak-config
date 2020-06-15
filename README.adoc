@@ -1,0 +1,24 @@
+= Kakoune Configuration
+Parasrah <github@parasrah.com>
+
+== TODO
+
+* [ ] `i3` integration
+	* `terminal` opens in `i3` as vsplit at bottom
+	* focus the current client so terminal commands are relative to that client
+* [ ] `nnn` integration
+	* `-` opens `nnn` in current directory
+	* selecting file in `nnn` opens in same kakoune session
+* [ ] `neovim` integration
+	* command to open current buffer in neovim
+	* when `neovim` closes, go back to `kakoune` session
+	* would allow me to use `coc.nvim` to make up for lacking typescript language servers as necessary (imports, etc)
+* [ ] csharp syntax files
+* [ ] ignore `.git` in `fzf`
+* [ ] make <c-w> delete wordwise in `fzf` mode
+* [ ] left margin
+* [ ] fix lsp `k` and `K`
+* [ ] highlight TODO's
+* [ ] replicate `R` from vim
+* [ ] use `Y` for copy (not yank)
+* [ ] secure way of `source`-ing machine-specific configs (ex: to add plugins like `parasrah/csharp.kak`

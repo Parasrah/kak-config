@@ -1,19 +1,9 @@
-# TODO: highlight todo
-# TODO: ignore git files in fzf
-# TODO: change main client when switching between windows
-# TODO: use i3 split for 'terminal'
-# TODO: use '-' to open 'nnn' {above} current file (like netrw)
-# TODO: fix keymap missing <ret>
-# TODO: make 'terminal' open below current i3 window
-# TODO: make Y copy (not yank)
-# TODO: make <c-w> go back wordwise in fzf
-# TODO: how to replicate R from vim?
-# TODO: add margin on left
 colorscheme gruvbox
 
 set-option -add global autoinfo normal
 set-option global startup_info_version 20200604
 set-option global ui_options ncurses_assistant=cat
+set-option global path '%/'
 
 map global normal <space> , -docstring 'leader'
 map global normal , <space> -docstring 'remove all selections except main'
