@@ -55,7 +55,13 @@ elmTestPath = "elm-test"
 elmAnalyseTrigger = "change"
 
 [language.typescript]
-filetypes = ["typescript"]
+filetypes = ["typescript", "javascript"]
+roots = ["tsconfig.json"]
+command = "typescript-language-server"
+args = ["--stdio"]
+
+[language.tsx]
+filetypes = ["typescriptreact", "javascriptreact"]
 roots = ["tsconfig.json"]
 command = "typescript-language-server"
 args = ["--stdio"]
@@ -68,6 +74,12 @@ filetypes = ["javascript"]
 roots = ["package.json"]
 command = "typescript-language-server"
 args = ["--stdio"]
+
+[language.csharp]
+filetypes = ["csharp"]
+roots = [".sln"]
+command = "omnisharp-language-server"
+args = ["-lsp"]
 
 [language.json]
 filetypes = ["json"]

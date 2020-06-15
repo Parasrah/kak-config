@@ -142,7 +142,7 @@ plug "ul/kak-lsp" do %{
 
     # debug
     # set global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
-    hook global WinSetOption filetype=(elixir|elm|javascript|typescript) %{
+    hook global WinSetOption filetype=(elixir|elm|javascript|typescript|typescriptreact|javascriptreact|csharp) %{
         lsp-enable-window
         map buffer user k ':lsp-hover<ret>' -docstring 'LSP hover'
         map buffer goto I ':lsp-implementation<ret>' -docstring 'LSP implementation'
@@ -183,4 +183,10 @@ plug "eraserhd/kak-ansi" do %{
     make
 }
 
+plug "alexherbo2/prelude.kak"
+
 plug "alexherbo2/connect.kak"
+
+plug "Parasrah/csharp.kak"
+
+plug "Parasrah/typescript.kak"
