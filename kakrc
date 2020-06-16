@@ -29,6 +29,11 @@ hook global BufCreate .*kitty[.]conf %{
     set-option buffer filetype ini
 }
 
+hook global WinSetOption filetype=(typescript|typescriptreact) %{
+    set-option window lintcmd 'run() { cat "$1" | npx eslint -f ~/.npm-global/lib/node_modules/eslint-formatter-kakoune/index.js --stdin --stdin-filename "$kak_buffile";} && run '
+    set-option window formatcmd "npx prettier --stdin-filepath %val{buffile}"
+}
+
 ################ commands #################
 
 ################# keymaps #################
@@ -74,7 +79,7 @@ plug "ul/kak-lsp" do %{
         map buffer goto I ':lsp-implementation<ret>' -docstring 'LSP implementation'
         map buffer user K ':lsp-hover<ret>' -docstring 'LSP hover (ignore diagnostics)'
         # TODO: hook to prevent 'K' from printing diagnostics
-        map buffer user f ':lsp-formatting<ret>' -docstring 'LSP Format'
+        # alias window format lsp-formatting
     }
 }
 
@@ -87,15 +92,14 @@ plug "andreyorst/fzf.kak" config %{
 
 plug "andreyorst/smarttab.kak" defer smarttab %{
 } config %{
-    # softtabstop
-    hook global WinSetOption indentwidth=([0-9]+) %{
-        echo -debug setting softtabstop to %val{hook_param_capture_1}
-        # TODO: only do if softtabstop exists
-        set-option window softtabstop %val{hook_param_capture_1}
+    hook global WinSetOption filetype=(?!makefile).* %{
+        expandtab
+        set-option window softtabstop %opt{indentwidth}
+        # FIXME: will this stack?
+        hook window WinSetOption indentwidth=([0-9]+) %{
+            set-option window softtabstop %val{hook_param_capture_1}
+        }
     }
-
-    # TODO: inverse of below
-    hook global WinSetOption filetype=(elixir|javascript|typescript|rust|nix|kak|elm) expandtab
     hook global WinSetOption filetype=(makefile) noexpandtab
 }
 
@@ -112,23 +116,21 @@ plug "alexherbo2/surround.kak" defer surround %{
 
 plug "alexherbo2/prelude.kak"
 
-plug "alexherbo2/connect.kak" config %{
-}
+plug "alexherbo2/connect.kak"
 
 plug "Parasrah/csharp.kak"
 
 plug "Parasrah/typescript.kak"
 
 plug "Parasrah/i3.kak" config %{
-    echo -debug "configuring i3"
     map global user w ': i3-mode<ret>' -docstring 'i3 mode'
 } defer i3wm %{
-    echo -debug "deferred i3 configuration"
     alias global new i3-new
     hook -group i3-hooks global KakBegin .* %{
         alias global terminal i3-terminal
     }
     define-command nnn -params .. -file-completion -docstring "Open file with nnn" %{
-        connect-terminal nnn %arg(@)
+        connect-terminal nnn -e %arg(@)
     }
+    map global normal <minus> ': nnn %sh{ dirname $kak_buffile }<ret>' -docstring 'open up nnn for the current buffer directory'
 } demand

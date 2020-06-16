@@ -22,3 +22,12 @@ Parasrah <github@parasrah.com>
 * [ ] replicate `R` from vim
 * [ ] use `Y` for copy (not yank)
 * [ ] secure way of `source`-ing machine-specific configs (ex: to add plugins like `parasrah/csharp.kak`
+
+== Dependencies
+
+rg:: ripgrep, a faster grep alternative
+file:: utility to determine file type
+jq:: allows parsing json
+git:: version control
+i3:: window manager
+dirname:: used to extract directory name from path
