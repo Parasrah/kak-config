@@ -60,13 +60,16 @@ roots = ["tsconfig.json"]
 command = "typescript-language-server"
 args = ["--stdio"]
 
+[language.typescript.initialization_options]
+formatTool = "prettier"
+
 [language.tsx]
 filetypes = ["typescriptreact", "javascriptreact"]
 roots = ["tsconfig.json"]
 command = "typescript-language-server"
 args = ["--stdio"]
 
-[language.typescript.initialization_options]
+[language.tsx.initialization_options]
 formatTool = "prettier"
 
 [language.javascript]

@@ -4,15 +4,15 @@ Parasrah <github@parasrah.com>
 == TODO
 
 * [ ] `i3` integration
-	* `terminal` opens in `i3` as vsplit at bottom
-	* focus the current client so terminal commands are relative to that client
+** `terminal` opens in `i3` as vsplit at bottom
+** focus the current client so terminal commands are relative to that client
 * [ ] `nnn` integration
-	* `-` opens `nnn` in current directory
-	* selecting file in `nnn` opens in same kakoune session
+** `-` opens `nnn` in current directory
+** selecting file in `nnn` opens in same kakoune session
 * [ ] `neovim` integration
-	* command to open current buffer in neovim
-	* when `neovim` closes, go back to `kakoune` session
-	* would allow me to use `coc.nvim` to make up for lacking typescript language servers as necessary (imports, etc)
+** command to open current buffer in neovim
+** when `neovim` closes, go back to `kakoune` session
+** would allow me to use `coc.nvim` to make up for lacking typescript language servers as necessary (imports, etc)
 * [ ] csharp syntax files
 * [ ] ignore `.git` in `fzf`
 * [ ] make <c-w> delete wordwise in `fzf` mode

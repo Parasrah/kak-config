@@ -5,9 +5,6 @@ set-option global startup_info_version 20200604
 set-option global ui_options ncurses_assistant=cat
 set-option global path '%/'
 
-map global normal <space> , -docstring 'leader'
-map global normal , <space> -docstring 'remove all selections except main'
-
 ################# hooks ###################
 
 # editorconfig
@@ -28,13 +25,11 @@ hook global RawKey K %{
 }
 
 # filetypes
-hook global BufCreate kitty\.conf %{
-    set-option window filetype ini
+hook global BufCreate .*kitty[.]conf %{
+    set-option buffer filetype ini
 }
 
 ################ commands #################
-
-define-command nnn -params .. -file-completion %(connect-terminal nnn %arg(@)) -docstring "Open with nnn"
 
 ################# keymaps #################
 
@@ -52,72 +47,13 @@ map global user P '!xsel --output --clipboard<ret>' -docstring 'paste from clipb
 # formatting
 map global user f ':format<ret>' -docstring 'Format'
 
-################### i3 ####################
-# TODO: i3 commands should open a new session with the same cwd & file open
-# having it open the same session is currently a problem for things like fzf
-# the con of this is that the buffer list is lost
-# could alternively have them open in same session, fzf etc opens i3 window
-# (always at bottom with full width and focus) and use 'FocusIn' hook (if supported
-# by kitty) to change the main client (if that's possible) when focus changes and
-# it's not a fzf window
-
-define-command -hidden -params 1.. i3-new-impl %{
-  evaluate-commands %sh{
-    if [ -z "$kak_opt_termcmd" ]; then
-      echo "fail 'termcmd option is not set'"
-      exit
-    fi
-    i3_split="$1"
-    shift
-    # clone (same buffer, same line)
-    cursor="$kak_cursor_line.$kak_cursor_column"
-    kakoune_args="-e 'execute-keys $@ :buffer <space> $kak_buffile <ret> :select <space> $cursor,$cursor <ret>'"
-    {
-      # https://github.com/i3/i3/issues/1767
-      [ -n "$i3_split" ] && i3-msg "split $i3_split"
-      exec $kak_opt_termcmd "kak -c $kak_session $kakoune_args"
-    } < /dev/null > /dev/null 2>&1 &
-  }
-}
-define-command i3-new-down -docstring "Create a new window below" %{
-  i3-new-impl v 
-}
-
-define-command i3-new-up -docstring "Create a new window below" %{
-  i3-new-impl v :nop <space> '%sh{ i3-msg move up }' <ret>
-}
-
-define-command i3-new-right -docstring "Create a new window on the right" %{
-  i3-new-impl h
-}
-
-define-command i3-new-left -docstring "Create a new window on the left" %{
-  i3-new-impl h :nop <space> '%sh{ i3-msg move left }' <ret>
-}
-
-define-command i3-new -docstring "Create a new window in the current container" %{
-  i3-new-impl ""
-}
-
-# Suggested aliases
-
-alias global new i3-new
-
-declare-user-mode i3
-map global i3 n :i3-new<ret> -docstring "new window in the current container"
-map global i3 h :i3-new-left<ret> -docstring '← new window on the left'
-map global i3 l :i3-new-right<ret> -docstring '→ new window on the right'
-map global i3 k :i3-new-up<ret> -docstring '↑ new window above'
-map global i3 j :i3-new-down<ret> -docstring '↓ new window below'
-
-# Suggested mapping
-
-map global user w ': enter-user-mode i3<ret>' -docstring 'i3 mode'
-
 declare-user-mode git
 map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
 
-# Plugins
+map global normal <space> , -docstring 'leader'
+map global normal , <space> -docstring 'remove all selections except main'
+
+################# plugins #################
 
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 
@@ -163,20 +99,36 @@ plug "andreyorst/smarttab.kak" defer smarttab %{
     hook global WinSetOption filetype=(makefile) noexpandtab
 }
 
+# for use with `man`
+plug "eraserhd/kak-ansi" do %{
+    make
+}
+
 plug "alexherbo2/surround.kak" defer surround %{
 } config %{
     map global user s ': surround<ret>' -docstring 'Enter surround mode'
     map global user S ': surround _ _ * *<ret>' -docstring 'Enter surround mode with extra surrounding pairs'
 }
 
-plug "eraserhd/kak-ansi" do %{
-    make
-}
-
 plug "alexherbo2/prelude.kak"
 
-plug "alexherbo2/connect.kak"
+plug "alexherbo2/connect.kak" config %{
+}
 
 plug "Parasrah/csharp.kak"
 
 plug "Parasrah/typescript.kak"
+
+plug "Parasrah/i3.kak" config %{
+    echo -debug "configuring i3"
+    map global user w ': i3-mode<ret>' -docstring 'i3 mode'
+} defer i3wm %{
+    echo -debug "deferred i3 configuration"
+    alias global new i3-new
+    hook -group i3-hooks global KakBegin .* %{
+        alias global terminal i3-terminal
+    }
+    define-command nnn -params .. -file-completion -docstring "Open file with nnn" %{
+        connect-terminal nnn %arg(@)
+    }
+} demand
