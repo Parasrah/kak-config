@@ -15,15 +15,6 @@ hook global NormalKey y %{ nop %sh{
     printf %s "$kak_main_reg_dquote" | xsel --input --clipboard
 }}
 
-# lsp hover
-hook global RawKey k %{
-    set-option window lsp_show_hover_format 'printf %s "${lsp_info}"'
-}
-
-hook global RawKey K %{
-    set-option window lsp_show_hover_format 'printf %s "${lsp_diagnostics}"'
-}
-
 # filetypes
 hook global BufCreate .*kitty[.]conf %{
     set-option buffer filetype ini
@@ -32,6 +23,10 @@ hook global BufCreate .*kitty[.]conf %{
 hook global WinSetOption filetype=(typescript|typescriptreact) %{
     set-option window lintcmd 'run() { cat "$1" | npx eslint -f ~/.npm-global/lib/node_modules/eslint-formatter-kakoune/index.js --stdin --stdin-filename "$kak_buffile";} && run '
     set-option window formatcmd "npx prettier --stdin-filepath %val{buffile}"
+}
+
+hook global WinSetOption filetype=(elixir) %{
+    set-option window formatcmd "mix format -"
 }
 
 ################ commands #################
@@ -67,19 +62,36 @@ plug "andreyorst/plug.kak" noload
 plug "ul/kak-lsp" do %{
         cargo install --locked --force --path .
 } config %{
+    echo -debug "configuring kak-lsp"
+    declare-option -hidden str lsp_language ''
+    declare-option bool lsp_debug false
+
     set-option global lsp_hover_anchor true
     set-option global lsp_diagnostic_line_error_sign '✗'
     set-option global lsp_diagnostic_line_warning_sign '⚠'
 
-    # debug
-    # set global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
+    define-command lsp-hover-info -docstring "show hover info" %{
+      set-option buffer lsp_show_hover_format 'printf %s "${lsp_info}"'
+      lsp-hover
+    }
+
+    define-command lsp-hover-diagnostics -docstring "show hover info" %{
+      set-option buffer lsp_show_hover_format 'printf %s "${lsp_diagnostics}"'
+      lsp-hover
+    }
+
     hook global WinSetOption filetype=(elixir|elm|javascript|typescript|typescriptreact|javascriptreact|csharp) %{
+        echo -debug "initializing lsp for window"
         lsp-enable-window
-        map buffer user k ':lsp-hover<ret>' -docstring 'LSP hover'
+        set-option window lsp_language %val{hook_param_capture_1}
+        map buffer user k ':lsp-hover-info<ret>' -docstring 'LSP hover'
+        map buffer user K ':lsp-hover-diagnostics<ret>' -docstring 'LSP diagnostics'
         map buffer goto I ':lsp-implementation<ret>' -docstring 'LSP implementation'
-        map buffer user K ':lsp-hover<ret>' -docstring 'LSP hover (ignore diagnostics)'
-        # TODO: hook to prevent 'K' from printing diagnostics
-        # alias window format lsp-formatting
+    }
+
+    hook global -once WinSetOption lsp_debug=true %{
+        echo -debug "enabling kak-lsp debug mode"
+        set global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
     }
 }
 
