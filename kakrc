@@ -3,6 +3,7 @@ colorscheme gruvbox
 set-option -add global autoinfo normal
 set-option global startup_info_version 20200604
 set-option global ui_options ncurses_assistant=cat
+set-option global ui_options ncurses_set_title=false
 set-option global path '%/'
 
 ################# hooks ###################
@@ -14,6 +15,10 @@ hook global WinCreate ^[^*]+$ %{editorconfig-load}
 hook global NormalKey y %{ nop %sh{
     printf %s "$kak_main_reg_dquote" | xsel --input --clipboard
 }}
+
+hook global BufCreate .* %{
+    declare-option -hidden bool git_blame_enabled false
+}
 
 # filetypes
 hook global BufCreate .*kitty[.]conf %{
@@ -30,6 +35,10 @@ hook global WinSetOption filetype=(elixir) %{
 }
 
 ################ commands #################
+
+define-command -hidden toggle-git-blame %{
+
+}
 
 ################# keymaps #################
 
@@ -49,6 +58,7 @@ map global user f ':format<ret>' -docstring 'Format'
 
 declare-user-mode git
 map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
+map global git b ' :toggle-git-blame<ret>' -docstring 'toggle blame'
 
 map global normal <space> , -docstring 'leader'
 map global normal , <space> -docstring 'remove all selections except main'
@@ -63,8 +73,8 @@ plug "ul/kak-lsp" do %{
     cargo install --locked --force --path .
 } config %{
     echo -debug "configuring kak-lsp"
+    # set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
     declare-option -hidden str lsp_language ''
-    declare-option bool lsp_debug false
 
     set-option global lsp_hover_anchor true
     set-option global lsp_diagnostic_line_error_sign '✗'
@@ -92,11 +102,6 @@ plug "ul/kak-lsp" do %{
     hook global WinSetOption lsp_language=elm %{
         # TODO: remove after https://github.com/ul/kak-lsp/issues/40 resolved
         set-option buffer lsp_completion_fragment_start %{execute-keys <esc><a-h>s\$?[\w.]+.\z<ret>}
-    }
-
-    hook global -once WinSetOption lsp_debug=true %{
-        echo -debug "enabling kak-lsp debug mode"
-        set global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
     }
 }
 

@@ -80,7 +80,7 @@ args = ["--stdio"]
 
 [language.csharp]
 filetypes = ["csharp"]
-roots = [".sln"]
+roots = ["*.sln"]
 command = "omnisharp-language-server"
 args = ["-lsp"]
 
