@@ -60,7 +60,7 @@ source "%val{config}/plugins/plug.kak/rc/plug.kak"
 plug "andreyorst/plug.kak" noload
 
 plug "ul/kak-lsp" do %{
-        cargo install --locked --force --path .
+    cargo install --locked --force --path .
 } config %{
     echo -debug "configuring kak-lsp"
     declare-option -hidden str lsp_language ''
@@ -89,6 +89,11 @@ plug "ul/kak-lsp" do %{
         map buffer goto I ':lsp-implementation<ret>' -docstring 'LSP implementation'
     }
 
+    hook global WinSetOption lsp_language=elm %{
+        # TODO: remove after https://github.com/ul/kak-lsp/issues/40 resolved
+        set-option buffer lsp_completion_fragment_start %{execute-keys <esc><a-h>s\$?[\w.]+.\z<ret>}
+    }
+
     hook global -once WinSetOption lsp_debug=true %{
         echo -debug "enabling kak-lsp debug mode"
         set global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
@@ -107,8 +112,8 @@ plug "andreyorst/smarttab.kak" defer smarttab %{
     hook global WinSetOption filetype=(?!makefile).* %{
         expandtab
         set-option window softtabstop %opt{indentwidth}
-        # FIXME: will this stack?
         hook window WinSetOption indentwidth=([0-9]+) %{
+            echo -debug "setting softtabstop=%val{hook_param_capture_1}"
             set-option window softtabstop %val{hook_param_capture_1}
         }
     }
