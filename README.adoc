@@ -31,3 +31,4 @@ jq:: allows parsing json
 git:: version control
 i3:: window manager
 dirname:: used to extract directory name from path
+editorconfig-core-c:: used to load editorconfig settings
