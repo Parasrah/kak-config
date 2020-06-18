@@ -3,25 +3,57 @@ Parasrah <github@parasrah.com>
 
 == TODO
 
-* [ ] `i3` integration
-** `terminal` opens in `i3` as vsplit at bottom
-** focus the current client so terminal commands are relative to that client
-* [ ] `nnn` integration
-** `-` opens `nnn` in current directory
-** selecting file in `nnn` opens in same kakoune session
-* [ ] `neovim` integration
-** command to open current buffer in neovim
-** when `neovim` closes, go back to `kakoune` session
-** would allow me to use `coc.nvim` to make up for lacking typescript language servers as necessary (imports, etc)
-* [ ] csharp syntax files
+* `i3`
+** [x] `terminal` opens in `i3` as vsplit at bottom
+** [ ] focus the current client so terminal commands are relative to that client
+** [ ] return split state to previous value after spawning new client
+* `kitty`
+** [ ] scope kitty window to instance where client resides (not where kak was spawned)
+** [ ] allow opening program in `kitty` tab, sending edits to client (`connect.kak`)
+* `fzf`
+** [ ] make `fzf` open in kitty window (for speed)
+* `nnn`
+** [x] command to open specified directory as external i3 window in `nnn` (1..1)
+** [ ] default above command to current buffer directory (0..1)
+** [ ] `-` opens `nnn` in current shell, goes back to kak on close
+** [ ] selecting file in `nnn` opens in same kakoune session
+* `neovim` (make up for lacking LSP's with coc.nvim)
+** [ ] command to open current buffer as external i3 window in neovim
+** [ ] command to perform above in current shell, goes back to kak on close
+* `csharp`
+** [ ] syntax files
+** [ ] autoindent
+** [ ] comments
+** [ ] build cmd
+* `typescript`
+** [ ] fix typescript syntax & comments
+** [ ] build
+** [x] lint
+** [x] lsp
+** [x] format
+* `elm`
+** [ ] remove `lsp` hack (blocked)
+** [x] format
+** [ ] elm-analyze
+** [ ] build
+* `elixir`
+** [x] formatting
+** [x] lsp
+** [ ] lsp diagnostics
+** [ ] stop lsp in insert mode?
+* [ ] quickfix equivalent
 * [ ] ignore `.git` in `fzf`
 * [ ] make <c-w> delete wordwise in `fzf` mode
 * [ ] left margin
-* [ ] fix lsp `k` and `K`
-* [ ] highlight TODO's
+* [x] lsp `k` for info, `K` for diagnostics
+* [ ] highlight TODO, FIXME
 * [ ] replicate `R` from vim
 * [ ] use `Y` for copy (not yank)
 * [ ] secure way of `source`-ing machine-specific configs (ex: to add plugins like `parasrah/csharp.kak`
+** this might be a cool idea for an editor agnostic tool leveraging gpg
+* [ ] auto-lint
+* [ ] better contrast on selection?
+* [ ] better insert mode indicator
 
 == Dependencies
 
@@ -32,3 +64,4 @@ git:: version control
 i3:: window manager
 dirname:: used to extract directory name from path
 editorconfig-core-c:: used to load editorconfig settings
+bc:: math
