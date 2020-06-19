@@ -4,7 +4,7 @@ set-option -add global autoinfo normal
 set-option global startup_info_version 20200604
 set-option global ui_options ncurses_assistant=cat
 set-option global ui_options ncurses_set_title=false
-set-option global path '%/'
+# set-option global path '%/ ./ /usr/include'
 
 ################# hooks ###################
 
@@ -34,6 +34,10 @@ hook global WinSetOption filetype=(elixir) %{
     set-option window formatcmd "mix format -"
 }
 
+hook global BufWritePost filetype=(typescript|typescriptreact) %{
+    lint
+}
+
 ################ commands #################
 
 define-command -hidden toggle-git-blame %{
@@ -47,7 +51,7 @@ map global user ' ' giGlc
 
 # comment line
 map global user c ':comment-line<ret>' -docstring 'comment selected lines'
-map global user C ':comment-block' -docstring 'comment block'
+map global user C ':comment-block<ret>' -docstring 'comment block'
 
 # copy/paste
 map global user p '<a-!>xsel --output --clipboard<ret>' -docstring 'paste from clipboard in front'
@@ -59,6 +63,7 @@ map global user f ':format<ret>' -docstring 'Format'
 declare-user-mode git
 map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
 map global git b ' :toggle-git-blame<ret>' -docstring 'toggle blame'
+map global git s ' :git status<ret>' -docstring 'git status'
 
 map global normal <space> , -docstring 'leader'
 map global normal , <space> -docstring 'remove all selections except main'
@@ -140,6 +145,10 @@ plug "alexherbo2/prelude.kak"
 
 plug "alexherbo2/connect.kak"
 
+plug "alexherbo2/replace-mode.kak" config %{
+    map global user r ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
+}
+
 plug "Parasrah/csharp.kak"
 
 plug "Parasrah/typescript.kak"
@@ -151,8 +160,12 @@ plug "Parasrah/i3.kak" config %{
     hook -group i3-hooks global KakBegin .* %{
         alias global terminal i3-terminal
     }
-    define-command nnn -params .. -file-completion -docstring "Open file with nnn" %{
+    define-command nnn -params .. -file-completion -docstring 'Open file with nnn' %{
         connect-terminal nnn -e %arg(@)
+    }
+
+    define-command nvim -docstring 'Open file with nvim' %{
+        connect-terminal nvim %val{buffile}
     }
     map global normal <minus> ': nnn %sh{ dirname $kak_buffile }<ret>' -docstring 'open up nnn for the current buffer directory'
 } demand

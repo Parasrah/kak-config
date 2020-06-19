@@ -51,9 +51,11 @@ Parasrah <github@parasrah.com>
 * [ ] use `Y` for copy (not yank)
 * [ ] secure way of `source`-ing machine-specific configs (ex: to add plugins like `parasrah/csharp.kak`
 ** this might be a cool idea for an editor agnostic tool leveraging gpg
+** just a util that, given a signed file and identity, produces a list of files, would be enough
 * [ ] auto-lint
 * [ ] better contrast on selection?
 * [ ] better insert mode indicator
+* [ ] setup `gf` to work w/o file extensions for certain files
 
 == Dependencies
 
