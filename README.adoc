@@ -5,21 +5,19 @@ Parasrah <github@parasrah.com>
 
 * `i3`
 ** [x] `terminal` opens in `i3` as vsplit at bottom
-** [ ] focus the current client so terminal commands are relative to that client
 ** [ ] return split state to previous value after spawning new client
 * `kitty`
 ** [ ] scope kitty window to instance where client resides (not where kak was spawned)
-** [ ] allow opening program in `kitty` tab, sending edits to client (`connect.kak`)
+** [x] allow opening program in `kitty` tab, sending edits to client (`connect.kak`)
 * `fzf`
-** [ ] make `fzf` open in kitty window (for speed)
+** [x] make `fzf` open in kitty window (faster than i3)
 * `nnn`
 ** [x] command to open specified directory as external i3 window in `nnn` (1..1)
-** [ ] default above command to current buffer directory (0..1)
-** [ ] `-` opens `nnn` in current shell, goes back to kak on close
-** [ ] selecting file in `nnn` opens in same kakoune session
+** [x] default above command to current buffer directory (0..1)
+** [x] `-` opens `nnn` in terminal tab, goes back to kak on close
+** [x] selecting file in `nnn` opens in same kakoune session
 * `neovim` (make up for lacking LSP's with coc.nvim)
-** [ ] command to open current buffer as external i3 window in neovim
-** [ ] command to perform above in current shell, goes back to kak on close
+** [x] command to open current buffer in terminal tab, goes back to kak on close
 * `csharp`
 ** [ ] syntax files
 ** [ ] autoindent
@@ -56,6 +54,10 @@ Parasrah <github@parasrah.com>
 * [ ] better contrast on selection?
 * [ ] better insert mode indicator
 * [ ] setup `gf` to work w/o file extensions for certain files
+* [ ] performant way to profile startup time
+* testing
+** [ ] script to run kakoune (headless), check for errors, and kill
+** [ ] github action leveraging above script
 
 == Dependencies
 

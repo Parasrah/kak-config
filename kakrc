@@ -4,7 +4,8 @@ set-option -add global autoinfo normal
 set-option global startup_info_version 20200604
 set-option global ui_options ncurses_assistant=cat
 set-option global ui_options ncurses_set_title=false
-# set-option global path '%/ ./ /usr/include'
+
+alias global set-default-terminal-alias nop
 
 ################# hooks ###################
 
@@ -44,14 +45,32 @@ define-command -hidden toggle-git-blame %{
 
 }
 
+define-command nnn-current -params 0..1 -file-completion -docstring 'Open file with nnn (volatile)' %{
+    alias global terminal kitty-terminal-tab
+    connect-terminal sh -c %{
+        edit $(nnn -p -)
+    } -- %arg{@}
+    set-default-terminal-alias
+}
+
+define-command nvim -docstring 'Open current buffer in neovim' %{
+    alias global terminal kitty-terminal-tab
+    connect-terminal nvim %val{buffile}
+    set-default-terminal-alias
+}
+
 ################# keymaps #################
 
-# replace line
-map global user ' ' giGlc
+# leader
+map global normal <space> , -docstring 'leader'
+map global normal , <space> -docstring 'remove all selections except main'
+
+# replace line - remove?
+# map global user ' ' giGlc
 
 # comment line
-map global user c ':comment-line<ret>' -docstring 'comment selected lines'
-map global user C ':comment-block<ret>' -docstring 'comment block'
+map global normal '#' ':comment-line<ret>' -docstring 'comment selected lines'
+map global normal <a-#> ':comment-block<ret>' -docstring 'comment block'
 
 # copy/paste
 map global user p '<a-!>xsel --output --clipboard<ret>' -docstring 'paste from clipboard in front'
@@ -60,13 +79,14 @@ map global user P '!xsel --output --clipboard<ret>' -docstring 'paste from clipb
 # formatting
 map global user f ':format<ret>' -docstring 'Format'
 
+# git
 declare-user-mode git
 map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
 map global git b ' :toggle-git-blame<ret>' -docstring 'toggle blame'
 map global git s ' :git status<ret>' -docstring 'git status'
 
-map global normal <space> , -docstring 'leader'
-map global normal , <space> -docstring 'remove all selections except main'
+# nnn
+map global normal <minus> ': nnn-current<ret>' -docstring 'open up nnn for the current buffer directory'
 
 ################# plugins #################
 
@@ -115,6 +135,7 @@ plug "andreyorst/fzf.kak" config %{
 } defer "fzf" %{
     set-option global fzf_file_command 'rg'
     set-option global fzf_grep_command "rg --hidden --smart-case --line-number --no-column --no-heading --color=never ''"
+    set-option global fzf_terminal_command 'kitty-terminal kak -c %val{session} -e "%arg{@}"'
 }
 
 plug "andreyorst/smarttab.kak" defer smarttab %{
@@ -123,7 +144,6 @@ plug "andreyorst/smarttab.kak" defer smarttab %{
         expandtab
         set-option window softtabstop %opt{indentwidth}
         hook window WinSetOption indentwidth=([0-9]+) %{
-            echo -debug "setting softtabstop=%val{hook_param_capture_1}"
             set-option window softtabstop %val{hook_param_capture_1}
         }
     }
@@ -143,7 +163,20 @@ plug "alexherbo2/surround.kak" defer surround %{
 
 plug "alexherbo2/prelude.kak"
 
-plug "alexherbo2/connect.kak"
+plug "alexherbo2/connect.kak" config %{
+    define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
+        connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
+    }
+
+    # TODO: could probably get rid of
+    define-command nnn-volatile -params 0..1 -file-completion -docstring 'Open file with nnn, then close' %{
+        connect-terminal sh -c %{
+            edit $(nnn -p - "${@:-$(dirname "$kak_buffile")}")
+        } -- %arg{@}
+    }
+
+    alias global nnn nnn-persistent
+}
 
 plug "alexherbo2/replace-mode.kak" config %{
     map global user r ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
@@ -158,14 +191,10 @@ plug "Parasrah/i3.kak" config %{
 } defer i3wm %{
     alias global new i3-new
     hook -group i3-hooks global KakBegin .* %{
-        alias global terminal i3-terminal
+        define-command -hidden set-i3-terminal-alias %{
+            alias global terminal i3-terminal
+        }
+        alias global set-default-terminal-alias set-i3-terminal-alias
+        set-default-terminal-alias
     }
-    define-command nnn -params .. -file-completion -docstring 'Open file with nnn' %{
-        connect-terminal nnn -e %arg(@)
-    }
-
-    define-command nvim -docstring 'Open file with nvim' %{
-        connect-terminal nvim %val{buffile}
-    }
-    map global normal <minus> ': nnn %sh{ dirname $kak_buffile }<ret>' -docstring 'open up nnn for the current buffer directory'
 } demand
