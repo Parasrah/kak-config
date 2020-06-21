@@ -4,13 +4,17 @@ Parasrah <github@parasrah.com>
 == TODO
 
 * `i3`
-** [x] `terminal` opens in `i3` as vsplit at bottom
+** [x] `i3-terminal-h` command to open in `i3` as hsplit
+** [ ] `i3-terminal-v` command to open in `i3` as vsplit
+** [x] `terminal` opens in `i3` as hsplit at bottom
 ** [ ] return split state to previous value after spawning new client
+** [ ] allow resizing of split after
 * `kitty`
-** [ ] scope kitty window to instance where client resides (not where kak was spawned)
+** [x] scope kitty window to instance where client resides (not where kak was spawned)
 ** [x] allow opening program in `kitty` tab, sending edits to client (`connect.kak`)
 * `fzf`
 ** [x] make `fzf` open in kitty window (faster than i3)
+** [x] disable version control module
 * `nnn`
 ** [x] command to open specified directory as external i3 window in `nnn` (1..1)
 ** [x] default above command to current buffer directory (0..1)

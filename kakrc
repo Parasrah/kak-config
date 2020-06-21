@@ -1,13 +1,18 @@
 colorscheme gruvbox
 
-set-option -add global autoinfo normal
 set-option global startup_info_version 20200604
 set-option global ui_options ncurses_assistant=cat
 set-option global ui_options ncurses_set_title=false
 
 alias global set-default-terminal-alias nop
 
-################# hooks ###################
+#-----------------------------------------#
+#                 hooks                   #
+#-----------------------------------------#
+
+hook global KakBegin .* %{
+    set-option global termcmd 'kitty -1 sh -c'
+}
 
 # editorconfig
 hook global WinCreate ^[^*]+$ %{editorconfig-load}
@@ -39,14 +44,21 @@ hook global BufWritePost filetype=(typescript|typescriptreact) %{
     lint
 }
 
-################ commands #################
+#-----------------------------------------#
+#                commands                 #
+#-----------------------------------------#
+
+define-command -hidden set-kitty-tab-terminal-alias %{
+    kitty-focus
+    alias global terminal kitty-terminal-tab
+}
 
 define-command -hidden toggle-git-blame %{
 
 }
 
 define-command nnn-current -params 0..1 -file-completion -docstring 'Open file with nnn (volatile)' %{
-    alias global terminal kitty-terminal-tab
+    set-kitty-tab-terminal-alias
     connect-terminal sh -c %{
         edit $(nnn -p -)
     } -- %arg{@}
@@ -54,12 +66,14 @@ define-command nnn-current -params 0..1 -file-completion -docstring 'Open file w
 }
 
 define-command nvim -docstring 'Open current buffer in neovim' %{
-    alias global terminal kitty-terminal-tab
+    set-kitty-tab-terminal-alias
     connect-terminal nvim %val{buffile}
     set-default-terminal-alias
 }
 
-################# keymaps #################
+#-----------------------------------------#
+#                 keymaps                 #
+#-----------------------------------------#
 
 # leader
 map global normal <space> , -docstring 'leader'
@@ -88,7 +102,9 @@ map global git s ' :git status<ret>' -docstring 'git status'
 # nnn
 map global normal <minus> ': nnn-current<ret>' -docstring 'open up nnn for the current buffer directory'
 
-################# plugins #################
+#-----------------------------------------#
+#                 plugins                 #
+#-----------------------------------------#
 
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 
@@ -132,10 +148,18 @@ plug "ul/kak-lsp" do %{
 
 plug "andreyorst/fzf.kak" config %{
     map global normal <c-p> ': fzf-mode<ret>'
+} subset %{
+    fzf.kak
+    fzf-file.kak
+    fzf-buffer.kak
+    fzf-search.kak
+    fzf-cd.kak
+    fzf-grep.kak
 } defer "fzf" %{
     set-option global fzf_file_command 'rg'
     set-option global fzf_grep_command "rg --hidden --smart-case --line-number --no-column --no-heading --color=never ''"
     set-option global fzf_terminal_command 'kitty-terminal kak -c %val{session} -e "%arg{@}"'
+    set-option global fzf_preview false
 }
 
 plug "andreyorst/smarttab.kak" defer smarttab %{
@@ -190,9 +214,10 @@ plug "Parasrah/i3.kak" config %{
     map global user w ': i3-mode<ret>' -docstring 'i3 mode'
 } defer i3wm %{
     alias global new i3-new
+    set-option global i3_termcmd 'kitty -1'
     hook -group i3-hooks global KakBegin .* %{
-        define-command -hidden set-i3-terminal-alias %{
-            alias global terminal i3-terminal
+        define-command -hidden set-i3-terminal-alias -docstring 'Alias :terminal to i3-terminal-h' %{
+            alias global terminal i3-terminal-h
         }
         alias global set-default-terminal-alias set-i3-terminal-alias
         set-default-terminal-alias
