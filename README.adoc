@@ -12,6 +12,7 @@ Parasrah <github@parasrah.com>
 * `kitty`
 ** [x] scope kitty window to instance where client resides (not where kak was spawned)
 ** [x] allow opening program in `kitty` tab, sending edits to client (`connect.kak`)
+** [ ] leverage `listen_on` in config avoid relying on `--single-instance`
 * `fzf`
 ** [x] make `fzf` open in kitty window (faster than i3)
 ** [x] disable version control module

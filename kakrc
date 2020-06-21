@@ -53,22 +53,27 @@ define-command -hidden set-kitty-tab-terminal-alias %{
     alias global terminal kitty-terminal-tab
 }
 
-define-command -hidden toggle-git-blame %{
-
-}
-
 define-command nnn-current -params 0..1 -file-completion -docstring 'Open file with nnn (volatile)' %{
-    set-kitty-tab-terminal-alias
-    connect-terminal sh -c %{
-        edit $(nnn -p -)
-    } -- %arg{@}
-    set-default-terminal-alias
+    kitty-terminal-tab sh -c %{
+        kak_buffile=$1 kak_session=$2 kak_client=$3
+        shift 3
+        kak_pwd="${@:-$(dirname "${kak_buffile}")}"
+        filename=$(nnn -p - "${kak_pwd}")
+        kak_cmd="evaluate-commands -client $kak_client edit $filename"
+        echo $kak_cmd | kak -p $kak_session
+    } -- %val{buffile} %val{session} %val{client} %arg{@}
 }
 
 define-command nvim -docstring 'Open current buffer in neovim' %{
-    set-kitty-tab-terminal-alias
-    connect-terminal nvim %val{buffile}
-    set-default-terminal-alias
+    kitty-terminal-tab sh -c %{
+        kak_buffile=$1
+        shift 1
+        nvim $kak_buffile
+    } -- %val{buffile}
+}
+
+define-command -hidden toggle-git-blame %{
+
 }
 
 #-----------------------------------------#
@@ -190,13 +195,6 @@ plug "alexherbo2/prelude.kak"
 plug "alexherbo2/connect.kak" config %{
     define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
-    }
-
-    # TODO: could probably get rid of
-    define-command nnn-volatile -params 0..1 -file-completion -docstring 'Open file with nnn, then close' %{
-        connect-terminal sh -c %{
-            edit $(nnn -p - "${@:-$(dirname "$kak_buffile")}")
-        } -- %arg{@}
     }
 
     alias global nnn nnn-persistent
