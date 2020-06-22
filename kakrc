@@ -48,30 +48,6 @@ hook global BufWritePost filetype=(typescript|typescriptreact) %{
 #                commands                 #
 #-----------------------------------------#
 
-define-command -hidden set-kitty-tab-terminal-alias %{
-    kitty-focus
-    alias global terminal kitty-terminal-tab
-}
-
-define-command nnn-current -params 0..1 -file-completion -docstring 'Open file with nnn (volatile)' %{
-    kitty-terminal-tab sh -c %{
-        kak_buffile=$1 kak_session=$2 kak_client=$3
-        shift 3
-        kak_pwd="${@:-$(dirname "${kak_buffile}")}"
-        filename=$(nnn -p - "${kak_pwd}")
-        kak_cmd="evaluate-commands -client $kak_client edit $filename"
-        echo $kak_cmd | kak -p $kak_session
-    } -- %val{buffile} %val{session} %val{client} %arg{@}
-}
-
-define-command nvim -docstring 'Open current buffer in neovim' %{
-    kitty-terminal-tab sh -c %{
-        kak_buffile=$1
-        shift 1
-        nvim $kak_buffile
-    } -- %val{buffile}
-}
-
 define-command -hidden toggle-git-blame %{
 
 }
@@ -204,6 +180,27 @@ plug "alexherbo2/replace-mode.kak" config %{
     map global user r ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
 }
 
+plug "Parasrah/kitty.kak" defer kitty %{
+    define-command nnn-current -params 0..1 -file-completion -docstring 'Open file with nnn (volatile)' %{
+        kitty-overlay sh -c %{
+            kak_buffile=$1 kak_session=$2 kak_client=$3
+            shift 3
+            kak_pwd="${@:-$(dirname "${kak_buffile}")}"
+            filename=$(nnn -p - "${kak_pwd}")
+            kak_cmd="evaluate-commands -client $kak_client edit $filename"
+            echo $kak_cmd | kak -p $kak_session
+        } -- %val{buffile} %val{session} %val{client} %arg{@}
+    }
+
+    define-command nvim -docstring 'Open current buffer in neovim' %{
+        kitty-overlay sh -c %{
+            kak_buffile=$1
+            shift 1
+            nvim $kak_buffile
+        } -- %val{buffile}
+    }
+}
+
 plug "Parasrah/csharp.kak"
 
 plug "Parasrah/typescript.kak"
@@ -212,7 +209,6 @@ plug "Parasrah/i3.kak" config %{
     map global user w ': i3-mode<ret>' -docstring 'i3 mode'
 } defer i3wm %{
     alias global new i3-new
-    set-option global i3_termcmd 'kitty -1'
     hook -group i3-hooks global KakBegin .* %{
         define-command -hidden set-i3-terminal-alias -docstring 'Alias :terminal to i3-terminal-h' %{
             alias global terminal i3-terminal-h
