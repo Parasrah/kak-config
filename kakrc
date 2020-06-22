@@ -3,6 +3,7 @@ colorscheme gruvbox
 set-option global startup_info_version 20200604
 set-option global ui_options ncurses_assistant=cat
 set-option global ui_options ncurses_set_title=false
+set-option global path '%/ ./ /usr/include'
 
 alias global set-default-terminal-alias nop
 
@@ -84,9 +85,6 @@ define-command -hidden toggle-git-blame %{
 map global normal <space> , -docstring 'leader'
 map global normal , <space> -docstring 'remove all selections except main'
 
-# replace line - remove?
-# map global user ' ' giGlc
-
 # comment line
 map global normal '#' ':comment-line<ret>' -docstring 'comment selected lines'
 map global normal <a-#> ':comment-block<ret>' -docstring 'comment block'
@@ -136,13 +134,14 @@ plug "ul/kak-lsp" do %{
       lsp-hover
     }
 
-    hook global WinSetOption filetype=(elixir|elm|javascript|typescript|typescriptreact|javascriptreact|csharp) %{
+    hook global WinSetOption filetype=(elixir|elm|javascript|typescript|typescriptreact|javascriptreact) %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
         map buffer user k ':lsp-hover-info<ret>' -docstring 'LSP hover'
         map buffer user K ':lsp-hover-diagnostics<ret>' -docstring 'LSP diagnostics'
-        map buffer goto I ':lsp-implementation<ret>' -docstring 'LSP implementation'
+        map buffer user . ' :lsp-code-actions' -docstring ''
+        map buffer goto I ' :lsp-implementation<ret>' -docstring 'LSP implementation'
     }
 
     hook global WinSetOption lsp_language=elm %{
@@ -160,11 +159,12 @@ plug "andreyorst/fzf.kak" config %{
     fzf-search.kak
     fzf-cd.kak
     fzf-grep.kak
+    fzf-project.kak
 } defer "fzf" %{
     set-option global fzf_file_command 'rg'
     set-option global fzf_grep_command "rg --hidden --smart-case --line-number --no-column --no-heading --color=never ''"
     set-option global fzf_terminal_command 'kitty-terminal kak -c %val{session} -e "%arg{@}"'
-    set-option global fzf_preview false
+    set-option global fzf_preview true
 }
 
 plug "andreyorst/smarttab.kak" defer smarttab %{
