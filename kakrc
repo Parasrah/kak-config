@@ -137,7 +137,7 @@ plug "andreyorst/fzf.kak" config %{
     fzf-grep.kak
     fzf-project.kak
 } defer "fzf" %{
-    set-option global fzf_file_command 'rg'
+    set-option global fzf_file_command 'rg --files --hidden -g "!.git" -g "!node_modules"'
     set-option global fzf_grep_command "rg --hidden --smart-case --line-number --no-column --no-heading --color=never ''"
     set-option global fzf_terminal_command 'kitty-terminal kak -c %val{session} -e "%arg{@}"'
     set-option global fzf_preview true
