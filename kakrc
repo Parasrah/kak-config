@@ -4,6 +4,7 @@ set-option global startup_info_version 20200604
 set-option global ui_options ncurses_assistant=cat
 set-option global ui_options ncurses_set_title=false
 set-option global path '%/ ./ /usr/include'
+set-option global grepcmd 'rg -HLn --no-heading'
 
 alias global set-default-terminal-alias nop
 
@@ -183,6 +184,7 @@ plug "alexherbo2/replace-mode.kak" config %{
 plug "Parasrah/kitty.kak" defer kitty %{
     define-command nnn-current -params 0..1 -file-completion -docstring 'Open file with nnn (volatile)' %{
         kitty-overlay sh -c %{
+            PAGER=""
             kak_buffile=$1 kak_session=$2 kak_client=$3
             shift 3
             kak_pwd="${@:-$(dirname "${kak_buffile}")}"
