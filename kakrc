@@ -69,6 +69,9 @@ map global user P '!xsel --output --clipboard<ret>' -docstring 'paste from clipb
 # formatting
 map global user f ':format<ret>' -docstring 'Format'
 
+# terminal
+map global user <ret> ' :connect-terminal bash<ret>' -docstring 'open terminal'
+
 # git
 declare-user-mode git
 map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
@@ -211,7 +214,7 @@ plug "Parasrah/i3.kak" config %{
     alias global new i3-new
     hook -group i3-hooks global KakBegin .* %{
         define-command -hidden set-i3-terminal-alias -docstring 'Alias :terminal to i3-terminal-h' %{
-            alias global terminal i3-terminal-h
+            alias global terminal i3-terminal-b
         }
         alias global set-default-terminal-alias set-i3-terminal-alias
         set-default-terminal-alias
