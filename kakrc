@@ -12,10 +12,6 @@ alias global set-default-terminal-alias nop
 #                 hooks                   #
 #-----------------------------------------#
 
-hook global KakBegin .* %{
-    set-option global termcmd 'kitty -1 sh -c'
-}
-
 # editorconfig
 hook global WinCreate ^[^*]+$ %{editorconfig-load}
 
@@ -168,6 +164,8 @@ plug "alexherbo2/surround.kak" defer surround %{
 }
 
 plug "alexherbo2/prelude.kak"
+
+plug "alexherbo2/terminal-mode.kak"
 
 plug "alexherbo2/connect.kak" config %{
     define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
