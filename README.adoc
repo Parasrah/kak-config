@@ -64,6 +64,7 @@ Parasrah <github@parasrah.com>
 * testing
 ** [ ] script to run kakoune (headless), check for errors, and kill
 ** [ ] github action leveraging above script
+* [ ] don't load startup files for git?
 
 == Dependencies
 

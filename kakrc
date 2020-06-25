@@ -31,7 +31,14 @@ hook global BufCreate .*kitty[.]conf %{
 
 hook global WinSetOption filetype=(typescript|typescriptreact) %{
     set-option window lintcmd 'run() { cat "$1" | npx eslint -f ~/.npm-global/lib/node_modules/eslint-formatter-kakoune/index.js --stdin --stdin-filename "$kak_buffile";} && run '
+}
+
+hook global WinSetOption filetype=(typescript|typescriptreact|javascript|javascriptreact) %{
     set-option window formatcmd "npx prettier --stdin-filepath %val{buffile}"
+}
+
+hook global WinSetOption filetype=elm %{
+    set-option window formatcmd 'elm-format --stdin'
 }
 
 hook global WinSetOption filetype=(elixir) %{
@@ -110,13 +117,13 @@ plug "ul/kak-lsp" do %{
       lsp-hover
     }
 
-    hook global WinSetOption filetype=(elixir|elm|javascript|typescript|typescriptreact|javascriptreact) %{
+    hook global WinSetOption filetype=(elixir|javascript|typescript|typescriptreact|javascriptreact) %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
         map buffer user k ':lsp-hover-info<ret>' -docstring 'LSP hover'
         map buffer user K ':lsp-hover-diagnostics<ret>' -docstring 'LSP diagnostics'
-        map buffer user . ' :lsp-code-actions' -docstring ''
+        map buffer user . ' :lsp-code-actions<ret>' -docstring ''
         map buffer goto I ' :lsp-implementation<ret>' -docstring 'LSP implementation'
     }
 
@@ -170,7 +177,7 @@ plug "alexherbo2/prelude.kak"
 
 plug "alexherbo2/terminal-mode.kak"
 
-plug "alexherbo2/connect.kak" config %{
+plug "alexherbo2/connect.kak" commit "05baa48582d383799e3e892d6c79656cf40b2f72" config %{
     define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
     }
