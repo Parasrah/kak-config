@@ -1,4 +1,26 @@
+#───────────────────────────────────#
+#             registers             #
+#───────────────────────────────────#
+
+# c         - casing
+# h,j,k,l   - user
+# a,s,d,f   - marks
+# ^,x,z     - selections
+# @,q,w,e,r - macros
+# /,m,n     - search
+# |         - pipe
+# 1-9       - regex matches
+
+#───────────────────────────────────#
+#               style               #
+#───────────────────────────────────#
+
 colorscheme gruvbox
+hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor }
+
+#───────────────────────────────────#
+#              options              #
+#───────────────────────────────────#
 
 set-option global startup_info_version 20200604
 set-option global ui_options ncurses_assistant=cat
@@ -6,25 +28,38 @@ set-option global ui_options ncurses_set_title=false
 set-option global path '%/ ./ /usr/include'
 set-option global grepcmd 'rg -HLn --no-heading'
 
-alias global set-default-terminal-alias nop
+#───────────────────────────────────#
+#               misc                #
+#───────────────────────────────────#
 
-#-----------------------------------------#
-#                 hooks                   #
-#-----------------------------------------#
-
-# editorconfig
 hook global WinCreate ^[^*]+$ %{editorconfig-load}
+
+# leader
+map global normal <space> , -docstring 'leader'
+map global normal , <space> -docstring 'remove all selections except main'
 
 # copy
 hook global NormalKey y %{ nop %sh{
     printf %s "$kak_main_reg_dquote" | xsel --input --clipboard
 }}
 
-hook global BufCreate .* %{
-    declare-option -hidden bool git_blame_enabled false
-}
+# formatting
+map global user f ':format<ret>' -docstring 'Format'
 
-# filetypes
+# comment line
+map global normal '#' ':comment-line<ret>' -docstring 'comment selected lines'
+map global normal <a-#> ':comment-block<ret>' -docstring 'comment block'
+
+# terminal
+map global user <ret> ' :connect-terminal bash<ret>' -docstring 'open terminal'
+
+# nnn
+map global normal <minus> ': nnn-current<ret>' -docstring 'open up nnn for the current buffer directory'
+
+#───────────────────────────────────#
+#             filetypes             #
+#───────────────────────────────────#
+
 hook global BufCreate .*kitty[.]conf %{
     set-option buffer filetype ini
 }
@@ -42,55 +77,82 @@ hook global WinSetOption filetype=elm %{
 }
 
 hook global WinSetOption filetype=(elixir) %{
-    set-option window formatcmd "mix format -"
+    set-option window formatcmd 'mix format -'
+}
+
+hook global WinSetOption filetype=python %{
+    set-option window formatcmd 'autopep8 -'
 }
 
 hook global BufWritePost filetype=(typescript|typescriptreact) %{
     lint
 }
 
-#-----------------------------------------#
-#                commands                 #
-#-----------------------------------------#
+#───────────────────────────────────#
+#                git                #
+#───────────────────────────────────#
 
-define-command -hidden toggle-git-blame %{
-
+hook global BufCreate .* %{
+    declare-option -hidden bool git_blame_enabled false
 }
 
-#-----------------------------------------#
-#                 keymaps                 #
-#-----------------------------------------#
+define-command -hidden toggle-git-blame %{
+    evaluate-commands %sh{
+        if [ "$kak_opt_git_blame_enabled" = 'true' ]; then
+            printf %s 'git hide-blame; set-option window git_blame_enabled false'
+        else
+            printf %s 'git blame; set-option window git_blame_enabled true'
+        fi
+    }
+}
 
-# leader
-map global normal <space> , -docstring 'leader'
-map global normal , <space> -docstring 'remove all selections except main'
-
-# comment line
-map global normal '#' ':comment-line<ret>' -docstring 'comment selected lines'
-map global normal <a-#> ':comment-block<ret>' -docstring 'comment block'
-
-# copy/paste
-map global user p '<a-!>xsel --output --clipboard<ret>' -docstring 'paste from clipboard in front'
-map global user P '!xsel --output --clipboard<ret>' -docstring 'paste from clipboard behind'
-
-# formatting
-map global user f ':format<ret>' -docstring 'Format'
-
-# terminal
-map global user <ret> ' :connect-terminal bash<ret>' -docstring 'open terminal'
-
-# git
 declare-user-mode git
 map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
 map global git b ' :toggle-git-blame<ret>' -docstring 'toggle blame'
 map global git s ' :git status<ret>' -docstring 'git status'
 
-# nnn
-map global normal <minus> ': nnn-current<ret>' -docstring 'open up nnn for the current buffer directory'
 
-#-----------------------------------------#
-#                 plugins                 #
-#-----------------------------------------#
+#───────────────────────────────────#
+#               casing              #
+#───────────────────────────────────#
+
+define-command camel-to-snake %{
+    execute-keys '"cZ;<a-i>ws[A-Z]<ret>`i_<esc>"cz'
+}
+
+define-command camel-to-capital %{
+    # TODO: this doesn't work properly w/ restoring selection?
+    execute-keys '"cZ<semicolon><a-i>w<a-semicolon><semicolon>~"cz'
+}
+
+#───────────────────────────────────#
+#            copy/paste             #
+#───────────────────────────────────#
+
+map global user p '<a-!>xsel --output --clipboard<ret>' -docstring 'paste from clipboard in front'
+map global user P '!xsel --output --clipboard<ret>' -docstring 'paste from clipboard behind'
+
+#───────────────────────────────────#
+#            highlight              #
+#───────────────────────────────────#
+# https://github.com/mawww/config/blob/master/kakrc
+
+declare-option -hidden regex curword
+set-face global CurWord default,rgba:80808040
+
+hook global NormalIdle .* %{
+    eval -draft %{ try %{
+        exec <space><a-i>w <a-k>\A\w+\z<ret>
+        set-option buffer curword "\b\Q%val{selection}\E\b"
+    } catch %{
+        set-option buffer curword ''
+    } }
+}
+add-highlighter global/ dynregex '%opt{curword}' 0:CurWord
+
+#───────────────────────────────────#
+#              plugins              #
+#───────────────────────────────────#
 
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 
@@ -220,10 +282,21 @@ plug "Parasrah/i3.kak" config %{
 } defer i3wm %{
     alias global new i3-new
     hook -group i3-hooks global KakBegin .* %{
-        define-command -hidden set-i3-terminal-alias -docstring 'Alias :terminal to i3-terminal-h' %{
+        define-command -hidden set-i3-terminal-alias %{
             alias global terminal i3-terminal-b
         }
-        alias global set-default-terminal-alias set-i3-terminal-alias
-        set-default-terminal-alias
+        set-i3-terminal-alias
     }
 } demand
+
+#───────────────────────────────────#
+#                misc               #
+#───────────────────────────────────#
+
+nop %sh{ {
+    status=$(http GET https://api.github.com/repos/ul/kak-lsp/issues/40 | jq '.state')
+    if [ "$status" = '"open"' ]; then
+        echo "echo -debug https://github.com/ul/kak-lsp/issues/40 is closed" |
+            kak -p ${kak_session}
+    fi
+} > /dev/null 2>&1 < /dev/null & }
