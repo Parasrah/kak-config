@@ -1,15 +1,3 @@
-#───────────────────────────────────#
-#             registers             #
-#───────────────────────────────────#
-
-# c         - casing
-# h,j,k,l   - user
-# a,s,d,f   - marks
-# ^,x,z     - selections
-# @,q,w,e,r - macros
-# /,m,n     - search
-# |         - pipe
-# 1-9       - regex matches
 
 #───────────────────────────────────#
 #               style               #
@@ -117,12 +105,27 @@ map global git s ' :git status<ret>' -docstring 'git status'
 #───────────────────────────────────#
 
 define-command camel-to-snake %{
-    execute-keys '"cZ;<a-i>ws[A-Z]<ret>`i_<esc>"cz'
+    execute-keys -draft '<a-i>ws[A<minus>Z]<ret>`\i_<esc>'
 }
 
 define-command camel-to-capital %{
-    # TODO: this doesn't work properly w/ restoring selection?
-    execute-keys '"cZ<semicolon><a-i>w<a-semicolon><semicolon>~"cz'
+    execute-keys -draft '<a-i>w<a-semicolon><semicolon>~'
+}
+
+define-command capital-to-camel %{
+    execute-keys -draft '<a-i>w<a-semicolon><semicolon>`'
+}
+
+define-command capital-to-snake %{
+    execute-keys -draft ''
+}
+
+define-command snake-to-camel %{
+    execute-keys -draft ''
+}
+
+define-command snake-to-capital %{
+    execute-keys -draft ''
 }
 
 #───────────────────────────────────#
@@ -209,6 +212,7 @@ plug "andreyorst/fzf.kak" config %{
     set-option global fzf_file_command 'rg --files --hidden -g "!.git" -g "!node_modules"'
     set-option global fzf_grep_command "rg --hidden --smart-case --line-number --no-column --no-heading --color=never ''"
     set-option global fzf_terminal_command 'kitty-terminal kak -c %val{session} -e "%arg{@}"'
+    set-option global fzf_window_map 'ctrl-t'
     set-option global fzf_preview true
 }
 
@@ -267,9 +271,9 @@ plug "Parasrah/kitty.kak" defer kitty %{
     define-command nvim -docstring 'Open current buffer in neovim' %{
         kitty-overlay sh -c %{
             kak_buffile=$1
-            shift 1
-            nvim $kak_buffile
-        } -- %val{buffile}
+            cursor_line=$2
+            nvim $kak_buffile +$cursor_line -c "execute 'normal! zz'"
+        } -- %val{buffile} %val{cursor_line}
     }
 }
 

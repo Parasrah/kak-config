@@ -1,7 +1,17 @@
 = Kakoune Configuration
 Parasrah <github@parasrah.com>
 
-== TODO
+== Registers
+
+`h`,`j`,`k`,`l`     - user
+`a`,`s`,`d`,`f`     - marks
+`^`,`x`,`z`         - selections
+`@`,`q`,`w`,`e`,`r` - macros
+`/`,`m`,`n`         - search
+`|`                 - pipe
+`1-9`               - regex matches
+
+== Features
 
 * `i3`
 ** [x] `i3-terminal-h` command to open in `i3` as hsplit
@@ -13,10 +23,11 @@ Parasrah <github@parasrah.com>
 ** [x] scope kitty window to instance where client resides (not where kak was spawned)
 ** [x] allow opening program in `kitty` tab, sending edits to client (`connect.kak`)
 ** [x] leverage `listen_on` in config to send `kitty` commands to current client
-** [ ] command to open a terminal
+** [x] command to open a terminal
 * `fzf`
 ** [x] make `fzf` open in kitty window (faster than i3)
 ** [x] disable version control module
+** [x] change `<c-w>` to delete wordwise
 * `nnn`
 ** [x] command to open specified directory as external i3 window in `nnn` (1..1)
 ** [x] default above command to current buffer directory (0..1)
@@ -24,17 +35,7 @@ Parasrah <github@parasrah.com>
 ** [x] selecting file in `nnn` opens in same kakoune session
 * `neovim` (make up for lacking LSP's with coc.nvim)
 ** [x] command to open current buffer in terminal tab, goes back to kak on close
-* `csharp`
-** [ ] syntax files
-** [ ] autoindent
-** [ ] comments
-** [ ] build cmd
-* `typescript`
-** [ ] fix typescript syntax & comments
-** [ ] build
-** [x] lint
-** [x] lsp
-** [x] format
+** [x] above command opens centered on same line as kakoune
 * `elm`
 ** [ ] remove `lsp` hack (blocked)
 ** [x] format
@@ -45,7 +46,17 @@ Parasrah <github@parasrah.com>
 ** [x] lsp
 ** [ ] lsp diagnostics
 ** [ ] stop lsp in insert mode?
-* [ ] quickfix equivalent
+* `csharp`
+** [x] syntax files
+** [x] autoindent
+** [ ] comments
+** [ ] build cmd
+* `typescript`
+** [ ] fix typescript syntax & comments
+** [ ] build
+** [x] lint
+** [x] lsp
+** [x] format
 * [ ] ignore `.git` in `fzf`
 * [ ] make <c-w> delete wordwise in `fzf` mode
 * [ ] left margin
@@ -65,6 +76,12 @@ Parasrah <github@parasrah.com>
 ** [ ] script to run kakoune (headless), check for errors, and kill
 ** [ ] github action leveraging above script
 * [ ] don't load startup files for git?
+* quickfix
+** [ ] setup `toolsclient`
+** [ ] keybinding to jump between
+* `grep`
+** [x] use `rg`
+** [ ] don't require surrounding in ""
 
 == Dependencies
 
@@ -76,3 +93,4 @@ i3:: window manager
 dirname:: used to extract directory name from path
 editorconfig-core-c:: used to load editorconfig settings
 bc:: math
+httpie:: curl replacement
