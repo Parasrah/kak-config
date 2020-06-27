@@ -1,4 +1,3 @@
-
 #───────────────────────────────────#
 #               style               #
 #───────────────────────────────────#
@@ -117,15 +116,15 @@ define-command capital-to-camel %{
 }
 
 define-command capital-to-snake %{
-    execute-keys -draft ''
+    execute-keys -draft '<a-i>ws[A<minus>Z]<ret>`i_<esc>[w<semicolon>d'
 }
 
 define-command snake-to-camel %{
-    execute-keys -draft ''
+    execute-keys -draft '<a-i>ws_<ret>d~'
 }
 
 define-command snake-to-capital %{
-    execute-keys -draft ''
+    execute-keys -draft '<a-i>ws_<ret>d~[w<semicolon>~'
 }
 
 #───────────────────────────────────#
@@ -182,7 +181,7 @@ plug "ul/kak-lsp" do %{
       lsp-hover
     }
 
-    hook global WinSetOption filetype=(elixir|javascript|typescript|typescriptreact|javascriptreact) %{
+    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact) %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
