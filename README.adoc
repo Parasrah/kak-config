@@ -3,13 +3,13 @@ Parasrah <github@parasrah.com>
 
 == Registers
 
-`h`,`j`,`k`,`l`     - user
-`a`,`s`,`d`,`f`     - marks
-`^`,`x`,`z`         - selections
-`@`,`q`,`w`,`e`,`r` - macros
-`/`,`m`,`n`         - search
-`|`                 - pipe
-`1-9`               - regex matches
+* `h`,`j`,`k`,`l`     - user
+* `a`,`s`,`d`,`f`     - marks
+* `^`,`x`,`z`         - selections
+* `@`,`q`,`w`,`e`,`r` - macros
+* `/`,`m`,`n`         - search
+* `|`                 - pipe
+* `1-9`               - regex matches
 
 == Features
 
