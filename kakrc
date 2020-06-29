@@ -4,6 +4,7 @@
 
 colorscheme gruvbox
 hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor }
+add-highlighter global/ show-matching
 
 #───────────────────────────────────#
 #              options              #
@@ -53,6 +54,10 @@ hook global BufCreate .*kitty[.]conf %{
 
 hook global WinSetOption filetype=(typescript|typescriptreact) %{
     set-option window lintcmd 'run() { cat "$1" | npx eslint -f ~/.npm-global/lib/node_modules/eslint-formatter-kakoune/index.js --stdin --stdin-filename "$kak_buffile";} && run '
+    set-option window makecmd 'npx tsc --noEmit'
+    hook window BufWritePost .* %{
+        lint
+    }
 }
 
 hook global WinSetOption filetype=(typescript|typescriptreact|javascript|javascriptreact) %{
@@ -69,10 +74,6 @@ hook global WinSetOption filetype=(elixir) %{
 
 hook global WinSetOption filetype=python %{
     set-option window formatcmd 'autopep8 -'
-}
-
-hook global BufWritePost filetype=(typescript|typescriptreact) %{
-    lint
 }
 
 #───────────────────────────────────#
@@ -128,6 +129,18 @@ define-command snake-to-capital %{
 }
 
 #───────────────────────────────────#
+#               ide                 #
+#───────────────────────────────────#
+
+map global user h ':grep-previous-match<ret>' -docstring 'Jump to the previous grep match'
+map global user l ':grep-next-match<ret>' -docstring 'Jump to the next grep match'
+map global user H ':make-previous-error<ret>' -docstring 'Jump to the previous make error'
+map global user L ':make-next-error<ret>' -docstring 'Jump to the next make error'
+
+map global user k ':lint-previous-message<ret>' -docstring 'Jump to the previous lint message'
+map global user j ':lint-next-message<ret>' -docstring 'Jump to the next lint message' 
+
+#───────────────────────────────────#
 #            copy/paste             #
 #───────────────────────────────────#
 
@@ -163,7 +176,6 @@ plug "andreyorst/plug.kak" noload
 plug "ul/kak-lsp" do %{
     cargo install --locked --force --path .
 } config %{
-    echo -debug "configuring kak-lsp"
     # set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
     declare-option -hidden str lsp_language ''
 
@@ -185,10 +197,14 @@ plug "ul/kak-lsp" do %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
-        map buffer user k ':lsp-hover-info<ret>' -docstring 'LSP hover'
-        map buffer user K ':lsp-hover-diagnostics<ret>' -docstring 'LSP diagnostics'
-        map buffer user . ' :lsp-code-actions<ret>' -docstring ''
-        map buffer goto I ' :lsp-implementation<ret>' -docstring 'LSP implementation'
+        map window user ';' ':lsp-hover-info<ret>' -docstring 'hover'
+        map window user ':' ':lsp-hover-diagnostics<ret>' -docstring 'diagnostics'
+        map window user . ':lsp-code-actions<ret>' -docstring 'code actions'
+        map window goto I ':lsp-implementation<ret>' -docstring 'goto implementation'
+        map window user <a-h> ':lsp-goto-previous-match<ret>' -docstring 'LSP goto previous'
+        map window user <a-l> ':lsp-goto-next-match<ret>' -docstring 'LSP goto next'
+        map window user <a-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
+        map window user <a-j> ':lsp-find-error<ret>' -docstring 'goto next LSP error'
     }
 
     hook global WinSetOption lsp_language=elm %{
@@ -298,7 +314,7 @@ plug "Parasrah/i3.kak" config %{
 
 nop %sh{ {
     status=$(http GET https://api.github.com/repos/ul/kak-lsp/issues/40 | jq '.state')
-    if [ "$status" = '"open"' ]; then
+    if [ "$status" = '"closed"' ]; then
         echo "echo -debug https://github.com/ul/kak-lsp/issues/40 is closed" |
             kak -p ${kak_session}
     fi

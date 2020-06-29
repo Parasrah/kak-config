@@ -82,6 +82,7 @@ Parasrah <github@parasrah.com>
 * `grep`
 ** [x] use `rg`
 ** [ ] don't require surrounding in ""
+* find `bash` to make sounds (alert)
 
 == Dependencies
 
