@@ -98,6 +98,8 @@ declare-user-mode git
 map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
 map global git b ' :toggle-git-blame<ret>' -docstring 'toggle blame'
 map global git s ' :git status<ret>' -docstring 'git status'
+map global git c ' :git commit<ret>' -docstring 'git commit'
+map global git d ' :git diff %val{buffile}<ret>' -docstring 'git diff (current file)'
 
 
 #───────────────────────────────────#
