@@ -3,8 +3,9 @@
 #───────────────────────────────────#
 
 colorscheme gruvbox
-hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor }
+add-highlighter global/ dynregex '%reg{/}' 0:+u
 add-highlighter global/ show-matching
+hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor }
 
 #───────────────────────────────────#
 #              options              #
@@ -14,7 +15,7 @@ set-option global startup_info_version 20200604
 set-option global ui_options ncurses_assistant=cat
 set-option global ui_options ncurses_set_title=false
 set-option global path '%/ ./ /usr/include'
-set-option global grepcmd 'rg -HLn --no-heading'
+set-option global grepcmd 'rg --follow --vimgrep'
 
 #───────────────────────────────────#
 #               misc                #
@@ -219,7 +220,13 @@ plug "ul/kak-lsp" do %{
         hook -group lsp window WinClose .* lsp-did-close
         hook -group lsp window BufWritePost .* lsp-did-save
         hook -group lsp window WinSetOption lsp_server_configuration=.* lsp-did-change-config
-        # hook -group lsp window InsertIdle .* lsp-completion
+        evaluate-commands %sh{
+            if [ "$kak_opt_filetype" = "elixir" ]; then
+                printf %s 'nop'
+            else
+                printf %s 'hook -group lsp window InsertIdle .* lsp-completion'
+            fi
+        }
         hook -group lsp window NormalIdle .* %{
             lsp-did-change
             %sh{if $kak_opt_lsp_auto_highlight_references; then echo "lsp-highlight-references"; else echo "nop"; fi}
