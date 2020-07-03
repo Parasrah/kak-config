@@ -236,7 +236,7 @@ plug "ul/kak-lsp" do %{
         lsp-did-change-config
     }
 
-    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact) %{
+    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python) %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
