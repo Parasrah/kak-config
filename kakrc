@@ -191,7 +191,7 @@ plug "ul/kak-lsp" do %{
       lsp-hover
     }
 
-    define-command lsp-hover-diagnostics -docstring "show hover info" %{
+    define-command lsp-hover-diagnostics -docstring "show hover diagnostics" %{
       set-option buffer lsp_show_hover_format 'printf %s "${lsp_diagnostics}"'
       lsp-hover
     }
@@ -199,41 +199,6 @@ plug "ul/kak-lsp" do %{
     hook global WinSetOption lsp_language=elm %{
         # TODO: remove after https://github.com/ul/kak-lsp/issues/40 resolved
         set-option buffer lsp_completion_fragment_start %{execute-keys <esc><a-h>s\$?[\w.]+.\z<ret>}
-    }
-
-    define-command -override lsp-enable-window -docstring "Default integration with kak-lsp in the window scope" %{
-        set-option window completers option=lsp_completions %opt{completers}
-
-        add-highlighter window/cquery_semhl ranges cquery_semhl
-        add-highlighter window/lsp_references ranges lsp_references
-        add-highlighter window/lsp_semantic_highlighting ranges lsp_semantic_highlighting
-        add-highlighter window/lsp_semantic_tokens ranges lsp_semantic_tokens
-        add-highlighter window/rust_analyzer_inlay_hints replace-ranges rust_analyzer_inlay_hints
-
-        lsp-inline-diagnostics-enable window
-        lsp-diagnostic-lines-enable window
-
-        map window goto d '<esc>: lsp-definition<ret>' -docstring 'definition'
-        map window goto r '<esc>: lsp-references<ret>' -docstring 'references'
-        map window goto y '<esc>: lsp-type-definition<ret>' -docstring 'type definition'
-
-        hook -group lsp window WinClose .* lsp-did-close
-        hook -group lsp window BufWritePost .* lsp-did-save
-        hook -group lsp window WinSetOption lsp_server_configuration=.* lsp-did-change-config
-        evaluate-commands %sh{
-            if [ "$kak_opt_filetype" = "elixir" ]; then
-                printf %s 'nop'
-            else
-                printf %s 'hook -group lsp window InsertIdle .* lsp-completion'
-            fi
-        }
-        hook -group lsp window NormalIdle .* %{
-            lsp-did-change
-            %sh{if $kak_opt_lsp_auto_highlight_references; then echo "lsp-highlight-references"; else echo "nop"; fi}
-        }
-
-        lsp-did-open
-        lsp-did-change-config
     }
 
     hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python) %{
