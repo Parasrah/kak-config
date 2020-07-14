@@ -5,6 +5,7 @@
 colorscheme gruvbox
 add-highlighter global/ dynregex '%reg{/}' 0:+u
 add-highlighter global/ show-matching
+add-highlighter global/ regex \b(TODO:|FIXME:|NOTE:) 0:cyan 1:yellow,red
 hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor }
 
 #───────────────────────────────────#
