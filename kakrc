@@ -3,7 +3,6 @@
 #───────────────────────────────────#
 
 colorscheme gruvbox
-add-highlighter global/ dynregex '%reg{/}' 0:+u
 add-highlighter global/ show-matching
 add-highlighter global/ regex \b(TODO:|FIXME:|NOTE:) 0:cyan 1:yellow,red
 hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor }
@@ -76,6 +75,10 @@ hook global WinSetOption filetype=(elixir) %{
 
 hook global WinSetOption filetype=python %{
     set-option window formatcmd 'autopep8 -'
+}
+
+define-command json %{
+    set-option window filetype 'json'
 }
 
 #───────────────────────────────────#
@@ -202,7 +205,7 @@ plug "ul/kak-lsp" do %{
         set-option buffer lsp_completion_fragment_start %{execute-keys <esc><a-h>s\$?[\w.]+.\z<ret>}
     }
 
-    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python) %{
+    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python|csharp) %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
