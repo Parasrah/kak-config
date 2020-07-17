@@ -4,7 +4,8 @@
 
 colorscheme gruvbox
 add-highlighter global/ show-matching
-add-highlighter global/ regex \b(TODO:|FIXME:|NOTE:) 0:cyan 1:yellow,red
+# TODO: isn't working, overridden by comments
+add-highlighter global/ regex \b(TODO:|FIXME:|NOTE:|XXX:) 1:rgb:ebdbb2
 hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor }
 
 #───────────────────────────────────#
@@ -14,7 +15,7 @@ hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor 
 set-option global startup_info_version 20200604
 set-option global ui_options ncurses_assistant=cat
 set-option global ui_options ncurses_set_title=false
-set-option global path '%/ ./ /usr/include'
+set-option global path '%/' './' '/usr/include'
 set-option global grepcmd 'rg --follow --vimgrep'
 
 #───────────────────────────────────#
@@ -212,7 +213,7 @@ plug "ul/kak-lsp" do %{
         map window user ';' ':lsp-hover-info<ret>' -docstring 'hover'
         map window user ':' ':lsp-hover-diagnostics<ret>' -docstring 'diagnostics'
         map window user . ':lsp-code-actions<ret>' -docstring 'code actions'
-        map window goto I ':lsp-implementation<ret>' -docstring 'goto implementation'
+        map window goto I '\:lsp-implementation<ret>' -docstring 'goto implementation'
         map window user <a-h> ':lsp-goto-previous-match<ret>' -docstring 'LSP goto previous'
         map window user <a-l> ':lsp-goto-next-match<ret>' -docstring 'LSP goto next'
         map window user <a-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
@@ -255,7 +256,7 @@ plug "eraserhd/kak-ansi" do %{
     make
 }
 
-plug "alexherbo2/surround.kak" defer surround %{
+plug "alexherbo2/surround.kak" commit "ecb231f51826d1ba9e9a601435d934590db75c00" defer surround %{
 } config %{
     map global user s ': surround<ret>' -docstring 'Enter surround mode'
     map global user S ': surround _ _ * *<ret>' -docstring 'Enter surround mode with extra surrounding pairs'
