@@ -278,6 +278,20 @@ plug "alexherbo2/replace-mode.kak" config %{
     map global user r ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
 }
 
+plug "https://gitlab.com/Screwtapello/kakoune-state-save" config %{
+    hook global KakBegin .* %{
+        state-save-reg-load colon
+        state-save-reg-load pipe
+        state-save-reg-load slash
+    }
+
+    hook global KakEnd .* %{
+        state-save-reg-save colon
+        state-save-reg-save pipe
+        state-save-reg-save slash
+    }
+}
+
 plug "Parasrah/kitty.kak" defer kitty %{
     define-command nnn-current -params 0..1 -file-completion -docstring 'Open file with nnn (volatile)' %{
         kitty-overlay sh -c %{
