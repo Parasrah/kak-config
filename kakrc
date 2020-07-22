@@ -54,6 +54,10 @@ hook global BufCreate .*kitty[.]conf %{
     set-option buffer filetype ini
 }
 
+hook global BufCreate .*/kak/snippets/.* %{
+    set-option buffer filetype snippet
+}
+
 hook global WinSetOption filetype=(typescript|typescriptreact) %{
     set-option window lintcmd 'run() { cat "$1" | npx eslint -f ~/.npm-global/lib/node_modules/eslint-formatter-kakoune/index.js --stdin --stdin-filename "$kak_buffile";} && run '
     set-option window makecmd 'npx tsc --noEmit'
@@ -146,7 +150,16 @@ map global user H ':make-previous-error<ret>' -docstring 'Jump to the previous m
 map global user L ':make-next-error<ret>' -docstring 'Jump to the next make error'
 
 map global user k ':lint-previous-message<ret>' -docstring 'Jump to the previous lint message'
-map global user j ':lint-next-message<ret>' -docstring 'Jump to the next lint message' 
+map global user j ':lint-next-message<ret>' -docstring 'Jump to the next lint message'
+
+define-command ide %{
+    rename-client main
+    set-option global jumpclient main
+
+    new rename-client tools
+    set-option global toolsclient tools
+}
+
 
 #───────────────────────────────────#
 #            copy/paste             #
@@ -241,14 +254,14 @@ plug "andreyorst/fzf.kak" config %{
 
 plug "andreyorst/smarttab.kak" defer smarttab %{
 } config %{
-    hook global WinSetOption filetype=(?!makefile).* %{
+    hook global WinSetOption filetype=(?!makefile)(?!snippet).* %{
         expandtab
         set-option window softtabstop %opt{indentwidth}
         hook window WinSetOption indentwidth=([0-9]+) %{
             set-option window softtabstop %val{hook_param_capture_1}
         }
     }
-    hook global WinSetOption filetype=(makefile) noexpandtab
+    hook global WinSetOption filetype=(makefile|snippet) noexpandtab
 }
 
 # for use with `man`
@@ -276,6 +289,17 @@ plug "alexherbo2/connect.kak" commit "05baa48582d383799e3e892d6c79656cf40b2f72" 
 
 plug "alexherbo2/replace-mode.kak" config %{
     map global user r ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
+}
+
+plug "occivink/kakoune-snippets" config %{
+    set-option global snippets_auto_expand false
+    map global normal <c-n> ': snippets-select-next-placeholders<ret>'
+
+    define-command snippets-trigger-line %{
+        execute-keys "giGls%opt{snippets_triggers_regex}<ret>:snippets-expand-trigger<ret>"
+    }
+
+    map global user n ': snippets-trigger-line<ret>' -docstring 'trigger snippets in line'
 }
 
 plug "https://gitlab.com/Screwtapello/kakoune-state-save" config %{

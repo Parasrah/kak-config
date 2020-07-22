@@ -1,0 +1,7 @@
+namespace ${1:Namespace}
+{
+	class ${2:ClassName}
+	{
+		${3:/* body */}
+	}
+}
