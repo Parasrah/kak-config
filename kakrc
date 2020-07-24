@@ -27,6 +27,7 @@ hook global WinCreate ^[^*]+$ %{editorconfig-load}
 # leader
 map global normal <space> , -docstring 'leader'
 map global normal , <space> -docstring 'remove all selections except main'
+map global normal <a-,> <a-space> -docstring 'remove main selection'
 
 # copy
 hook global NormalKey y %{ nop %sh{
@@ -82,8 +83,12 @@ hook global WinSetOption filetype=python %{
     set-option window formatcmd 'autopep8 -'
 }
 
+define-command filetype -params 1 -docstring '' %{
+    set-option window filetype %arg{1}
+}
+
 define-command json %{
-    set-option window filetype 'json'
+    filetype 'json'
 }
 
 #───────────────────────────────────#
@@ -293,13 +298,25 @@ plug "alexherbo2/replace-mode.kak" config %{
 
 plug "occivink/kakoune-snippets" config %{
     set-option global snippets_auto_expand false
-    map global normal <c-n> ': snippets-select-next-placeholders<ret>'
 
-    define-command snippets-trigger-line %{
+    define-command snippets-trigger-line -docstring 'Execute any snippet triggers in current line' %{
         execute-keys "giGls%opt{snippets_triggers_regex}<ret>:snippets-expand-trigger<ret>"
     }
 
-    map global user n ': snippets-trigger-line<ret>' -docstring 'trigger snippets in line'
+    define-command snippets-trigger-line-start -docstring 'Execute any snippet triggers before cursor' %{
+        execute-keys ";Gis%opt{snippets_triggers_regex}<ret>:snippets-expand-trigger<ret>"
+    }
+
+    # move to next placeholder
+    map global normal <c-n> ': snippets-select-next-placeholders<ret>'
+
+    # triggers
+    map global insert <a-space> '<esc>: snippets-trigger-line-start<ret>'
+    map global normal <a-space> ': snippets-trigger-line<ret>' -docstring 'trigger snippets in line'
+}
+
+plug "JJK96/kakoune-emmet" config %{
+    map global insert <a-e> '<esc>giGl: emmet<ret>i'
 }
 
 plug "https://gitlab.com/Screwtapello/kakoune-state-save" config %{

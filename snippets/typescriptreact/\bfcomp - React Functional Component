@@ -1,0 +1,11 @@
+import React from 'react'
+
+interface ${1:Props} {
+	${2}
+}
+
+const ${3:Name} = ({}: ${1}) => {
+	${4}
+}
+
+export { ${3} }

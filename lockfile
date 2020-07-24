@@ -1,0 +1,18 @@
+# generated using 'ls | xargs -I {} git --git-dir=./{}/.git log -1 @ | rg commit' (primitive)
+connect.kak 05baa48582d383799e3e892d6c79656cf40b2f72
+csharp.kak fe8db70761c35f0a47612d0157def89254d41944
+fzf.kak b2aeb26473962ab0bf3b51ba5c81c50c1d8253d3
+i3.kak 8e3d0b7ec1a1a8e18fe01bf8b2f6eb19c841cc58
+kak-ansi 4d9ca803d6c60d1fb2d46838dae9874fe5e52dab
+kak-lsp b2ad784f68f3777b7eea6e8a02ade6891c1fccbd
+kakoune-emmet df614cbc60b6369cfdeb875e91721495ac0def94
+kakoune-snippets 94931c20fa009e2a1cb2f115d8885c257582851c
+kakoune-state-save ab7c0c765326a4a80af78857469ee8c80814c52a
+kitty.kak f2ff078f28ec306907b0014a1df1bdc4b569e22b
+plug.kak 926f66a0d0657cd5971cf5d6be7da2fab034361b
+prelude.kak 05b2642b1e014bd46423f9d738cc38a624947b63
+replace-mode.kak a569d3df8311a0447e65348a7d48c2dea5415df0
+smarttab.kak 1321c308edac6bd892e2bd2f683432402a04be98
+surround.kak 165e03c949bc7653a5fb4a1d040b23d74feadad5
+terminal-mode.kak d0a73b6a705d4962508a6aa7158d2e055b5256ef
+typescript.kak 5201697fb7d11dd06d11fa478668b959492c3ac9
