@@ -269,10 +269,10 @@ plug "eraserhd/kak-ansi" do %{
     make
 }
 
-plug "alexherbo2/surround.kak" commit "ecb231f51826d1ba9e9a601435d934590db75c00" defer surround %{
+plug "alexherbo2/surround.kak" defer surround %{
 } config %{
-    map global user s ': surround<ret>' -docstring 'Enter surround mode'
-    map global user S ': surround _ _ * *<ret>' -docstring 'Enter surround mode with extra surrounding pairs'
+    map global user s ': enter-user-mode surround<ret>' -docstring 'Enter surround mode'
+    map global user S ': surround-enter-insert-mode<ret>' -docstring 'Enter surround insert mode'
 }
 
 plug "alexherbo2/prelude.kak"
