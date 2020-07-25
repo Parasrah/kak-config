@@ -83,6 +83,10 @@ hook global WinSetOption filetype=python %{
     set-option window formatcmd 'autopep8 -'
 }
 
+hook global WinSetOption filetype=nix %{
+    set-option window formatcmd 'nixpkgs-fmt'
+}
+
 define-command filetype -params 1 -docstring '' %{
     set-option window filetype %arg{1}
 }
@@ -308,7 +312,10 @@ plug "occivink/kakoune-snippets" config %{
     }
 
     # move to next placeholder
-    map global normal <c-n> ': snippets-select-next-placeholders<ret>'
+    # FIXME: this is actually <c-space>, but that doesn't work
+    # https://github.com/mawww/kakoune/issues/2553
+    map global normal <c-`> ': snippets-select-next-placeholders<ret>'
+    map global insert <c-`> '<esc>: snippets-select-next-placeholders<ret>'
 
     # triggers
     map global insert <a-space> '<esc>: snippets-trigger-line-start<ret>'
