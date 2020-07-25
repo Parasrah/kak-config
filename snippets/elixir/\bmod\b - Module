@@ -1,0 +1,3 @@
+defmodule ${1:Name} do
+	${2}
+end

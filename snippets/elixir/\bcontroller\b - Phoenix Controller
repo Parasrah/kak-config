@@ -1,0 +1,5 @@
+defmodule ${1:Project}Web.${2:Module}Controller do
+	use ${1}Web, :controller
+
+	${0}
+end
