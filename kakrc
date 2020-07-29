@@ -133,6 +133,10 @@ define-command camel-to-capital %{
     execute-keys -draft '<a-i>w<a-semicolon><semicolon>~'
 }
 
+define-command camel-to-const %{
+    execute-keys -save-regs '' '<a-i>w<c-s>s[A<minus>Z]<ret>i_<esc><c-o>~'
+}
+
 define-command capital-to-camel %{
     execute-keys -draft '<a-i>w<a-semicolon><semicolon>`'
 }
@@ -278,12 +282,6 @@ plug "eraserhd/kak-ansi" do %{
     make
 }
 
-plug "alexherbo2/surround.kak" defer surround %{
-} config %{
-    map global user s ': enter-user-mode surround<ret>' -docstring 'Enter surround mode'
-    map global user S ': surround-enter-insert-mode<ret>' -docstring 'Enter surround insert mode'
-}
-
 plug "alexherbo2/prelude.kak"
 
 plug "alexherbo2/terminal-mode.kak"
@@ -298,6 +296,10 @@ plug "alexherbo2/connect.kak" commit "05baa48582d383799e3e892d6c79656cf40b2f72" 
 
 plug "alexherbo2/replace-mode.kak" config %{
     map global user r ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
+}
+
+plug "alexherbo2/surround.kak" commit "ecb231f51826d1ba9e9a601435d934590db75c00" config %{
+    map global user s ': surround<ret>' -docstring 'Enter surround mode'
 }
 
 plug "occivink/kakoune-snippets" config %{

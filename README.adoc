@@ -1,7 +1,9 @@
 = Kakoune Configuration
 Parasrah <github@parasrah.com>
 
-== Registers
+== Register Map
+
+Used to document what registers I try to associate with what actions
 
 * `h`,`j`,`k`,`l`     - user
 * `a`,`s`,`d`,`f`     - marks
@@ -10,79 +12,6 @@ Parasrah <github@parasrah.com>
 * `/`,`m`,`n`         - search
 * `|`                 - pipe
 * `1-9`               - regex matches
-
-== Features
-
-* `i3`
-** [x] `i3-terminal-h` command to open in `i3` as hsplit
-** [ ] `i3-terminal-v` command to open in `i3` as vsplit
-** [x] `terminal` opens in `i3` as hsplit at bottom
-** [ ] return split state to previous value after spawning new client
-** [ ] allow resizing of split after
-* `kitty`
-** [x] scope kitty window to instance where client resides (not where kak was spawned)
-** [x] allow opening program in `kitty` tab, sending edits to client (`connect.kak`)
-** [x] leverage `listen_on` in config to send `kitty` commands to current client
-** [x] command to open a terminal
-* `fzf`
-** [x] make `fzf` open in kitty window (faster than i3)
-** [x] disable version control module
-** [x] change `<c-w>` to delete wordwise
-* `nnn`
-** [x] command to open specified directory as external i3 window in `nnn` (1..1)
-** [x] default above command to current buffer directory (0..1)
-** [x] `-` opens `nnn` in terminal tab, goes back to kak on close
-** [x] selecting file in `nnn` opens in same kakoune session
-* `neovim` (make up for lacking LSP's with coc.nvim)
-** [x] command to open current buffer in terminal tab, goes back to kak on close
-** [x] above command opens centered on same line as kakoune
-* `elm`
-** [ ] remove `lsp` hack (blocked)
-** [x] format
-** [ ] elm-analyze
-** [ ] build
-* `elixir`
-** [x] formatting
-** [x] lsp
-** [ ] lsp diagnostics
-** [ ] stop lsp in insert mode?
-* `csharp`
-** [x] syntax files
-** [x] autoindent
-** [ ] comments
-** [ ] build cmd
-* `typescript`
-** [ ] fix typescript syntax & comments
-** [ ] build
-** [x] lint
-** [x] lsp
-** [x] format
-* [ ] ignore `.git` in `fzf`
-* [ ] make <c-w> delete wordwise in `fzf` mode
-* [ ] left margin
-* [x] lsp `k` for info, `K` for diagnostics
-* [ ] highlight TODO, FIXME
-* [ ] replicate `R` from vim
-* [ ] use `Y` for copy (not yank)
-* [ ] secure way of `source`-ing machine-specific configs (ex: to add plugins like `parasrah/csharp.kak`
-** this might be a cool idea for an editor agnostic tool leveraging gpg
-** just a util that, given a signed file and identity, produces a list of files, would be enough
-* [ ] auto-lint
-* [ ] better contrast on selection?
-* [ ] better insert mode indicator
-* [ ] setup `gf` to work w/o file extensions for certain files
-* [ ] performant way to profile startup time
-* testing
-** [ ] script to run kakoune (headless), check for errors, and kill
-** [ ] github action leveraging above script
-* [ ] don't load startup files for git?
-* quickfix
-** [ ] setup `toolsclient`
-** [ ] keybinding to jump between
-* `grep`
-** [x] use `rg`
-** [ ] don't require surrounding in ""
-* find `bash` to make sounds (alert)
 
 == Dependencies
 
@@ -95,3 +24,6 @@ dirname:: used to extract directory name from path
 editorconfig-core-c:: used to load editorconfig settings
 bc:: math
 httpie:: curl replacement
+emmet-cli:: emmet cli wrapper
+kitty:: terminal emulator
+nnn:: terminal file manager
