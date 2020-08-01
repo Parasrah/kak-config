@@ -286,7 +286,7 @@ plug "alexherbo2/prelude.kak"
 
 plug "alexherbo2/terminal-mode.kak"
 
-plug "alexherbo2/connect.kak" commit "05baa48582d383799e3e892d6c79656cf40b2f72" config %{
+plug "alexherbo2/connect.kak" commit "9a4475b9e0b71c7049b2d61e4fdf04248bc546f8" config %{
     define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
     }
