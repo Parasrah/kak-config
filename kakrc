@@ -12,7 +12,7 @@ hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor 
 #              options              #
 #───────────────────────────────────#
 
-set-option global startup_info_version 20200604
+set-option global startup_info_version 20200804
 set-option global ui_options ncurses_assistant=cat
 set-option global ui_options ncurses_set_title=false
 set-option global path '%/' './' '/usr/include'
@@ -367,6 +367,8 @@ plug "Parasrah/kitty.kak" defer kitty %{
 plug "Parasrah/csharp.kak"
 
 plug "Parasrah/typescript.kak"
+
+plug "Parasrah/filelist.kak" config %{} defer filelist %{} demand
 
 plug "Parasrah/i3.kak" config %{
     map global user w ': i3-mode<ret>' -docstring 'i3 mode'
