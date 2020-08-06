@@ -9,6 +9,18 @@ add-highlighter global/ regex \b(TODO:|FIXME:|NOTE:|XXX:) 1:rgb:ebdbb2
 hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor }
 
 #───────────────────────────────────#
+#               system              #
+#───────────────────────────────────#
+
+try %{
+    require-module x11
+    set-option global grepcmd 'rg --follow --vimgrep'
+} catch %{
+    echo -debug "failed to load system modules, please symlink %val{runtime}/autoload to %val{config}/autoload"
+    echo -debug "mkdir -p %val{config}/autoload && ln -s %val{runtime}/autoload %val{config}/autoload/sys"
+}
+
+#───────────────────────────────────#
 #              options              #
 #───────────────────────────────────#
 
@@ -16,7 +28,6 @@ set-option global startup_info_version 20200804
 set-option global ui_options ncurses_assistant=cat
 set-option global ui_options ncurses_set_title=false
 set-option global path '%/' './' '/usr/include'
-set-option global grepcmd 'rg --follow --vimgrep'
 
 #───────────────────────────────────#
 #               misc                #
@@ -28,11 +39,6 @@ hook global WinCreate ^[^*]+$ %{editorconfig-load}
 map global normal <space> , -docstring 'leader'
 map global normal , <space> -docstring 'remove all selections except main'
 map global normal <a-,> <a-space> -docstring 'remove main selection'
-
-# copy
-hook global NormalKey y %{ nop %sh{
-    printf %s "$kak_main_reg_dquote" | xsel --input --clipboard
-}}
 
 # formatting
 map global user f ':format<ret>' -docstring 'Format'
@@ -122,6 +128,14 @@ map global git d ' :git diff %val{buffile}<ret>' -docstring 'git diff (current f
 
 
 #───────────────────────────────────#
+#             whitespace            #
+#───────────────────────────────────#
+
+define-command clean-whitespace %{
+    execute-keys -draft '<percent>s^<space><plus>$<ret>d'
+}
+
+#───────────────────────────────────#
 #               casing              #
 #───────────────────────────────────#
 
@@ -166,6 +180,7 @@ map global user k ':lint-previous-message<ret>' -docstring 'Jump to the previous
 map global user j ':lint-next-message<ret>' -docstring 'Jump to the next lint message'
 
 define-command ide %{
+    # TODO: open nnn to left, toolsclient below
     rename-client main
     set-option global jumpclient main
 
@@ -178,8 +193,19 @@ define-command ide %{
 #            copy/paste             #
 #───────────────────────────────────#
 
-map global user p '<a-!>xsel --output --clipboard<ret>' -docstring 'paste from clipboard in front'
-map global user P '!xsel --output --clipboard<ret>' -docstring 'paste from clipboard behind'
+# TODO: use the clipboard register
+# TODO: move into a plugin
+
+hook global RegisterModified p %{ nop %sh{
+    printf %s "$kak_reg_p" | xsel --input --clipboard
+} }
+
+define-command propagate-clipboard -docstring 'Propagate clipboard contents to clipboard register' %{
+    set-register p %sh{ xsel --output --clipboard }
+}
+
+hook global FocusIn .* propagate-clipboard
+hook global KakBegin .* propagate-clipboard
 
 #───────────────────────────────────#
 #            highlight              #
@@ -286,7 +312,7 @@ plug "alexherbo2/prelude.kak"
 
 plug "alexherbo2/terminal-mode.kak"
 
-plug "alexherbo2/connect.kak" commit "9a4475b9e0b71c7049b2d61e4fdf04248bc546f8" config %{
+plug "alexherbo2/connect.kak" commit "1ca2580782fa59ce8600f4a0d6a1485539ad522e" config %{
     define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
     }
@@ -362,13 +388,13 @@ plug "Parasrah/kitty.kak" defer kitty %{
             nvim $kak_buffile +$cursor_line -c "execute 'normal! zz'"
         } -- %val{buffile} %val{cursor_line}
     }
-}
+} demand
 
 plug "Parasrah/csharp.kak"
 
 plug "Parasrah/typescript.kak"
 
-plug "Parasrah/filelist.kak" config %{} defer filelist %{} demand
+plug "Parasrah/filelist.kak"
 
 plug "Parasrah/i3.kak" config %{
     map global user w ': i3-mode<ret>' -docstring 'i3 mode'
