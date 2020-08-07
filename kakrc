@@ -188,25 +188,6 @@ define-command ide %{
     set-option global toolsclient tools
 }
 
-
-#───────────────────────────────────#
-#            copy/paste             #
-#───────────────────────────────────#
-
-# TODO: use the clipboard register
-# TODO: move into a plugin
-
-hook global RegisterModified p %{ nop %sh{
-    printf %s "$kak_reg_p" | xsel --input --clipboard
-} }
-
-define-command propagate-clipboard -docstring 'Propagate clipboard contents to clipboard register' %{
-    set-register p %sh{ xsel --output --clipboard }
-}
-
-hook global FocusIn .* propagate-clipboard
-hook global KakBegin .* propagate-clipboard
-
 #───────────────────────────────────#
 #            highlight              #
 #───────────────────────────────────#
@@ -395,6 +376,8 @@ plug "Parasrah/csharp.kak"
 plug "Parasrah/typescript.kak"
 
 plug "Parasrah/filelist.kak"
+
+plug "Parasrah/clipboard.kak" defer clipboard demand
 
 plug "Parasrah/i3.kak" config %{
     map global user w ': i3-mode<ret>' -docstring 'i3 mode'
