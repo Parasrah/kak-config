@@ -4,8 +4,11 @@
 
 colorscheme gruvbox
 add-highlighter global/ show-matching
-# TODO: isn't working, overridden by comments
-add-highlighter global/ regex \b(TODO:|FIXME:|NOTE:|XXX:) 1:rgb:ebdbb2
+
+hook global WinSetOption comment_line=(.*) %{
+    add-highlighter -override window/todo regex "\Q%val{hook_param_capture_1}\E\h*(TODO:|FIXME:|NOTE:|XXX:)[^\n]*" 1:rgb:ffbf00+Fb
+}
+
 hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor }
 
 #───────────────────────────────────#
@@ -16,7 +19,7 @@ try %{
     require-module x11
     set-option global grepcmd 'rg --follow --vimgrep'
 } catch %{
-    echo -debug "failed to load system modules, please symlink %val{runtime}/autoload to %val{config}/autoload"
+    echo -debug "failed to load system modules, please run the following:"
     echo -debug "mkdir -p %val{config}/autoload && ln -s %val{runtime}/autoload %val{config}/autoload/sys"
 }
 
@@ -25,8 +28,7 @@ try %{
 #───────────────────────────────────#
 
 set-option global startup_info_version 20200804
-set-option global ui_options ncurses_assistant=cat
-set-option global ui_options ncurses_set_title=false
+set-option global ui_options 'ncurses_assistant=cat' 'ncurses_set_title=false'
 set-option global path '%/' './' '/usr/include'
 
 #───────────────────────────────────#
@@ -46,12 +48,6 @@ map global user f ':format<ret>' -docstring 'Format'
 # comment line
 map global normal '#' ':comment-line<ret>' -docstring 'comment selected lines'
 map global normal <a-#> ':comment-block<ret>' -docstring 'comment block'
-
-# terminal
-map global user <ret> ' :connect-terminal bash<ret>' -docstring 'open terminal'
-
-# nnn
-map global normal <minus> ': nnn-current<ret>' -docstring 'open up nnn for the current buffer directory'
 
 #───────────────────────────────────#
 #             filetypes             #
@@ -93,31 +89,25 @@ hook global WinSetOption filetype=nix %{
     set-option window formatcmd 'nixpkgs-fmt'
 }
 
-define-command filetype -params 1 -docstring '' %{
+define-command filetype -params 1 -docstring 'Set the current filetype' %{
     set-option window filetype %arg{1}
 }
 
-define-command json %{
-    filetype 'json'
-}
+define-command json %{ filetype 'json' }
 
 #───────────────────────────────────#
 #                git                #
 #───────────────────────────────────#
 
-hook global BufCreate .* %{
-    declare-option -hidden bool git_blame_enabled false
-}
+declare-option -hidden bool git_blame_enabled false
 
-define-command -hidden toggle-git-blame %{
-    evaluate-commands %sh{
-        if [ "$kak_opt_git_blame_enabled" = 'true' ]; then
-            printf %s 'git hide-blame; set-option window git_blame_enabled false'
-        else
-            printf %s 'git blame; set-option window git_blame_enabled true'
-        fi
-    }
-}
+define-command -hidden toggle-git-blame %{ evaluate-commands %sh{
+    if [ "$kak_opt_git_blame_enabled" = 'true' ]; then
+        printf %s 'git hide-blame; set-option window git_blame_enabled false'
+    else
+        printf %s 'git blame; set-option window git_blame_enabled true'
+    fi
+} }
 
 declare-user-mode git
 map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
@@ -131,41 +121,25 @@ map global git d ' :git diff %val{buffile}<ret>' -docstring 'git diff (current f
 #             whitespace            #
 #───────────────────────────────────#
 
-define-command clean-whitespace %{
-    execute-keys -draft '<percent>s^<space><plus>$<ret>d'
-}
+define-command clean-whitespace %{ execute-keys -draft '<percent>s^<space><plus>$<ret>d' }
 
 #───────────────────────────────────#
 #               casing              #
 #───────────────────────────────────#
 
-define-command camel-to-snake %{
-    execute-keys -draft '<a-i>ws[A<minus>Z]<ret>`\i_<esc>'
-}
+define-command camel-to-snake %{ execute-keys -draft '<a-i>ws[A<minus>Z]<ret>`\i_<esc>' }
 
-define-command camel-to-capital %{
-    execute-keys -draft '<a-i>w<a-semicolon><semicolon>~'
-}
+define-command camel-to-capital %{ execute-keys -draft '<a-i>w<a-semicolon><semicolon>~' }
 
-define-command camel-to-const %{
-    execute-keys -save-regs '' '<a-i>w<c-s>s[A<minus>Z]<ret>i_<esc><c-o>~'
-}
+define-command camel-to-const %{ execute-keys -save-regs '' '<a-i>w<c-s>s[A<minus>Z]<ret>i_<esc><c-o>~' }
 
-define-command capital-to-camel %{
-    execute-keys -draft '<a-i>w<a-semicolon><semicolon>`'
-}
+define-command capital-to-camel %{ execute-keys -draft '<a-i>w<a-semicolon><semicolon>`' }
 
-define-command capital-to-snake %{
-    execute-keys -draft '<a-i>ws[A<minus>Z]<ret>`i_<esc>[w<semicolon>d'
-}
+define-command capital-to-snake %{ execute-keys -draft '<a-i>ws[A<minus>Z]<ret>`i_<esc>[w<semicolon>d' }
 
-define-command snake-to-camel %{
-    execute-keys -draft '<a-i>ws_<ret>d~'
-}
+define-command snake-to-camel %{ execute-keys -draft '<a-i>ws_<ret>d~' }
 
-define-command snake-to-capital %{
-    execute-keys -draft '<a-i>ws_<ret>d~[w<semicolon>~'
-}
+define-command snake-to-capital %{ execute-keys -draft '<a-i>ws_<ret>d~[w<semicolon>~' }
 
 #───────────────────────────────────#
 #               ide                 #
@@ -298,6 +272,8 @@ plug "alexherbo2/connect.kak" commit "1ca2580782fa59ce8600f4a0d6a1485539ad522e" 
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
     }
 
+    map global user <ret> ' :connect-terminal bash<ret>' -docstring 'open terminal'
+
     alias global nnn nnn-persistent
 }
 
@@ -369,7 +345,9 @@ plug "Parasrah/kitty.kak" defer kitty %{
             nvim $kak_buffile +$cursor_line -c "execute 'normal! zz'"
         } -- %val{buffile} %val{cursor_line}
     }
-} demand
+
+    map global normal <minus> ': nnn-current<ret>' -docstring 'open up nnn for the current buffer directory'
+}
 
 plug "Parasrah/csharp.kak"
 
@@ -377,7 +355,7 @@ plug "Parasrah/typescript.kak"
 
 plug "Parasrah/filelist.kak"
 
-plug "Parasrah/clipboard.kak" defer clipboard demand
+plug "Parasrah/clipboard.kak" defer clipboard %{} demand
 
 plug "Parasrah/i3.kak" config %{
     map global user w ': i3-mode<ret>' -docstring 'i3 mode'
@@ -390,15 +368,3 @@ plug "Parasrah/i3.kak" config %{
         set-i3-terminal-alias
     }
 } demand
-
-#───────────────────────────────────#
-#                misc               #
-#───────────────────────────────────#
-
-nop %sh{ {
-    status=$(http GET https://api.github.com/repos/ul/kak-lsp/issues/40 | jq '.state')
-    if [ "$status" = '"closed"' ]; then
-        echo "echo -debug https://github.com/ul/kak-lsp/issues/40 is closed" |
-            kak -p ${kak_session}
-    fi
-} > /dev/null 2>&1 < /dev/null & }
