@@ -6,10 +6,11 @@ colorscheme gruvbox
 add-highlighter global/ show-matching
 
 hook global WinSetOption comment_line=(.*) %{
-    add-highlighter -override window/todo regex "\Q%val{hook_param_capture_1}\E\h*(TODO:|FIXME:|NOTE:|XXX:)[^\n]*" 1:rgb:ffbf00+Fb
+    add-highlighter -override window/todo regex "\Q%val{hook_param_capture_1}\E\h*(TODO:|FIXME:|NOTE:|XXX:)[^\n]*" 1:rgb:ff8c00+Fb
 }
 
 hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor }
+hook global RegisterModified '/' %{ add-highlighter -override global/search regex "%reg{/}" 0:+b }
 
 #───────────────────────────────────#
 #               system              #
@@ -35,7 +36,9 @@ set-option global path '%/' './' '/usr/include'
 #               misc                #
 #───────────────────────────────────#
 
-hook global WinCreate ^[^*]+$ %{editorconfig-load}
+# editorconfig
+hook global BufOpenFile .* %{ editorconfig-load }
+hook global BufNewFile .* %{ editorconfig-load }
 
 # leader
 map global normal <space> , -docstring 'leader'
@@ -61,12 +64,25 @@ hook global BufCreate .*/kak/snippets/.* %{
     set-option buffer filetype snippet
 }
 
+provide-module -override git-commit %{
+    add-highlighter shared/git-commit regions
+    add-highlighter shared/git-commit/diff region '^diff --git' '^(?=diff --git)' ref diff # highlight potential diffs from the -v option
+    # TODO: contribute upstream (lines starting with horizontal whitespace are not treated as comments by git)
+    add-highlighter shared/git-commit/comments region '^#' '$' group
+    add-highlighter shared/git-commit/comments/ fill comment
+    add-highlighter shared/git-commit/comments/ regex "\b(?:(modified)|(deleted)|(new file)|(renamed|copied)):([^\n]*)$" 1:yellow 2:red 3:green 4:blue 5:magenta
+}
+
 hook global WinSetOption filetype=(typescript|typescriptreact) %{
     set-option window lintcmd 'run() { cat "$1" | npx eslint -f ~/.npm-global/lib/node_modules/eslint-formatter-kakoune/index.js --stdin --stdin-filename "$kak_buffile";} && run '
     set-option window makecmd 'npx tsc --noEmit'
     hook window BufWritePost .* %{
         lint
     }
+}
+
+hook global WinSetOption filetype=json %{
+    set-option window formatcmd "jq --monochrome-output '.'"
 }
 
 hook global WinSetOption filetype=(typescript|typescriptreact|javascript|javascriptreact) %{
@@ -77,7 +93,7 @@ hook global WinSetOption filetype=elm %{
     set-option window formatcmd 'elm-format --stdin'
 }
 
-hook global WinSetOption filetype=(elixir) %{
+hook global WinSetOption filetype=elixir %{
     set-option window formatcmd 'mix format -'
 }
 
@@ -208,12 +224,15 @@ plug "ul/kak-lsp" do %{
       lsp-hover
     }
 
+    # TODO: would be nice to have <c-space> trigger explicit LSP completion
+    # currently kak-lsp does not seem to add entry to <c-x> menu in insert mode
+
     hook global WinSetOption lsp_language=elm %{
         # TODO: remove after https://github.com/ul/kak-lsp/issues/40 resolved
         set-option buffer lsp_completion_fragment_start %{execute-keys <esc><a-h>s\$?[\w.]+.\z<ret>}
     }
 
-    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python) %{
+    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python|csharp) %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
@@ -297,10 +316,8 @@ plug "occivink/kakoune-snippets" config %{
     }
 
     # move to next placeholder
-    # FIXME: this is actually <c-space>, but that doesn't work
-    # https://github.com/mawww/kakoune/issues/2553
-    map global normal <c-`> ': snippets-select-next-placeholders<ret>'
-    map global insert <c-`> '<esc>: snippets-select-next-placeholders<ret>'
+    map global normal <a-ret> ': snippets-select-next-placeholders<ret>'
+    map global insert <a-ret> '<esc>: snippets-select-next-placeholders<ret>'
 
     # triggers
     map global insert <a-space> '<esc>: snippets-trigger-line-start<ret>'

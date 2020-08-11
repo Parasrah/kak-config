@@ -5,6 +5,7 @@ Parasrah <github@parasrah.com>
 
 Used to document what registers I try to associate with what actions
 
+* `p`                 - clipboard register
 * `h`,`j`,`k`,`l`     - user
 * `a`,`s`,`d`,`f`     - marks
 * `^`,`x`,`z`         - selections
@@ -12,6 +13,16 @@ Used to document what registers I try to associate with what actions
 * `/`,`m`,`n`         - search
 * `|`                 - pipe
 * `1-9`               - regex matches
+
+== Reserved keys
+
+Some keys I want to preserve for future use
+
+* `<c-h,j,k,l>`, `<a-h,j,k,l>` - for when kakoune supports ambiguous keys
+** `j,k` keys for jumps inside buffer
+** `h,l` keys for jumps across buffers
+* `<c-space>` - for explicit lsp completion
+* `<c-n>` - for something with normal mode navigation forward, not backward
 
 == Dependencies
 
