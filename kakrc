@@ -372,6 +372,8 @@ plug "Parasrah/typescript.kak"
 
 plug "Parasrah/filelist.kak"
 
+plug "Parasrah/elixir.kak"
+
 plug "Parasrah/clipboard.kak" defer clipboard %{} demand
 
 plug "Parasrah/i3.kak" config %{
