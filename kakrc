@@ -100,6 +100,16 @@ define-command filetype -params 1 -docstring 'Set the current filetype' %{
 define-command json %{ filetype 'json' }
 
 #───────────────────────────────────#
+#            text objects           #
+#───────────────────────────────────#
+
+# TODO: finish command to select indentation without travelling past a newline after matching indentation
+define-command -hidden text-object-indent %{
+    # execute-keys -save-regs '' -- 'Gh?\S<ret>hy/<c-r>"\S[^\n]*\n\n'
+    execute-keys -save-regs '' -- '<a-/>\n\n<c-r>"\S<ret>gh?\S<ret>Hygi?^<c-r>"\S[^\n]*\n\n<ret>K<a-x>'
+}
+
+#───────────────────────────────────#
 #                git                #
 #───────────────────────────────────#
 
