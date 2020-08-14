@@ -358,12 +358,12 @@ plug "Parasrah/filelist.kak"
 
 plug "Parasrah/clipboard.kak" defer clipboard %{} demand
 
-plug "Parasrah/hestia.kak" config %{
+plug "Parasrah/hestia.kak" defer hestia %{
     set-option global hestia_key '5912C209160C4D18'
 
     hestia-load-machine
     hestia-load-project
-}
+} demand
 
 plug "Parasrah/i3.kak" config %{
     map global user w ': i3-mode<ret>' -docstring 'i3 mode'
