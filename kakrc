@@ -387,3 +387,25 @@ plug "Parasrah/i3.kak" config %{
         set-i3-terminal-alias
     }
 } demand
+
+#───────────────────────────────────#
+#              hestia               #
+#───────────────────────────────────#
+
+declare-option -docstring 'gpg signing key' str hestia_key
+
+set-option global hestia_key '5912C209160C4D18'
+
+declare-option -hidden str hestia_machine_kakfile %sh{
+    printf %s "$kak_config/machines/$(hostname).kak"
+}
+
+declare-option -hidden str hestia_machine_kakfile %sh{
+    printf %s "$kak_config/machines/$(hostname).kak.asc"
+}
+
+define-command sign-file -params 1 -file-completion %{
+    nop %sh{
+        gpg --detach-sign --armor --default-key $kak_opt_hestia_key $@ 1>/dev/null
+    }
+}
