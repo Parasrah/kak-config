@@ -73,20 +73,8 @@ provide-module -override git-commit %{
     add-highlighter shared/git-commit/comments/ regex "\b(?:(modified)|(deleted)|(new file)|(renamed|copied)):([^\n]*)$" 1:yellow 2:red 3:green 4:blue 5:magenta
 }
 
-hook global WinSetOption filetype=(typescript|typescriptreact) %{
-    set-option window lintcmd 'run() { cat "$1" | npx eslint -f ~/.npm-global/lib/node_modules/eslint-formatter-kakoune/index.js --stdin --stdin-filename "$kak_buffile";} && run '
-    set-option window makecmd 'npx tsc --noEmit'
-    hook window BufWritePost .* %{
-        lint
-    }
-}
-
 hook global WinSetOption filetype=json %{
     set-option window formatcmd "jq --monochrome-output '.'"
-}
-
-hook global WinSetOption filetype=(typescript|typescriptreact|javascript|javascriptreact) %{
-    set-option window formatcmd "npx prettier --stdin-filepath %val{buffile}"
 }
 
 hook global WinSetOption filetype=elm %{
@@ -366,15 +354,16 @@ plug "Parasrah/kitty.kak" defer kitty %{
     map global normal <minus> ': nnn-current<ret>' -docstring 'open up nnn for the current buffer directory'
 }
 
-plug "Parasrah/csharp.kak"
-
-plug "Parasrah/typescript.kak"
-
 plug "Parasrah/filelist.kak"
 
-plug "Parasrah/elixir.kak"
-
 plug "Parasrah/clipboard.kak" defer clipboard %{} demand
+
+plug "Parasrah/hestia.kak" config %{
+    set-option global hestia_key '5912C209160C4D18'
+
+    hestia-load-machine
+    hestia-load-project
+}
 
 plug "Parasrah/i3.kak" config %{
     map global user w ': i3-mode<ret>' -docstring 'i3 mode'
@@ -387,25 +376,3 @@ plug "Parasrah/i3.kak" config %{
         set-i3-terminal-alias
     }
 } demand
-
-#───────────────────────────────────#
-#              hestia               #
-#───────────────────────────────────#
-
-declare-option -docstring 'gpg signing key' str hestia_key
-
-set-option global hestia_key '5912C209160C4D18'
-
-declare-option -hidden str hestia_machine_kakfile %sh{
-    printf %s "$kak_config/machines/$(hostname).kak"
-}
-
-declare-option -hidden str hestia_machine_kakfile %sh{
-    printf %s "$kak_config/machines/$(hostname).kak.asc"
-}
-
-define-command sign-file -params 1 -file-completion %{
-    nop %sh{
-        gpg --detach-sign --armor --default-key $kak_opt_hestia_key $@ 1>/dev/null
-    }
-}
