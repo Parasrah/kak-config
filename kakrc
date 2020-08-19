@@ -280,11 +280,11 @@ plug "eraserhd/kak-ansi" do %{
     make
 }
 
-plug "alexherbo2/prelude.kak"
+plug "alexherbo2/prelude.kak" commit "01f00761050cf9cbd92c018d3dc538ffe77a384f"
 
-plug "alexherbo2/terminal-mode.kak"
+plug "alexherbo2/terminal-mode.kak" commit "e42c3a0b65bd6247db96d7f682832f18f488efa5"
 
-plug "alexherbo2/connect.kak" commit "1ca2580782fa59ce8600f4a0d6a1485539ad522e" config %{
+plug "alexherbo2/connect.kak" commit "7846e275822e7d940786b716046738dae5332fcd" config %{
     define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
     }
@@ -294,13 +294,15 @@ plug "alexherbo2/connect.kak" commit "1ca2580782fa59ce8600f4a0d6a1485539ad522e" 
     alias global nnn nnn-persistent
 }
 
-plug "alexherbo2/replace-mode.kak" config %{
+plug "alexherbo2/replace-mode.kak" commit "a569d3df8311a0447e65348a7d48c2dea5415df0" config %{
     map global user r ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
 }
 
 plug "alexherbo2/surround.kak" commit "ecb231f51826d1ba9e9a601435d934590db75c00" config %{
     map global user s ': surround<ret>' -docstring 'Enter surround mode'
 }
+
+plug "alexherbo2/auto-pairs.kak" commit "fae942240ebf29ff17983e36d4b420b6a0abdc38"
 
 plug "occivink/kakoune-snippets" config %{
     set-option global snippets_auto_expand false
