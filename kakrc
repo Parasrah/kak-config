@@ -129,7 +129,7 @@ map global git b ' :toggle-git-blame<ret>' -docstring 'toggle blame'
 map global git s ' :git status<ret>' -docstring 'git status'
 map global git c ' :git commit<ret>' -docstring 'git commit'
 map global git d ' :git diff %val{buffile}<ret>' -docstring 'git diff (current file)'
-
+map global git y ' :copy-line-commit<ret>' -docstring 'copy commit for current line'
 
 #───────────────────────────────────#
 #             whitespace            #
@@ -368,7 +368,11 @@ plug "Parasrah/kitty.kak" defer kitty %{
 
 plug "Parasrah/filelist.kak"
 
-plug "Parasrah/clipboard.kak" defer clipboard %{} demand
+plug "Parasrah/clipboard.kak" defer clipboard %{
+    define-command copy-line-commit -docstring 'copy commit hash for current line' %{
+        set-register %opt{clipboard_register} %sh( git blame -l -L "${kak_cursor_line},${kak_cursor_line}" -p -- "${kak_buffile}" | head -n 1 | awk '{print $1}' )
+    }
+} demand
 
 plug "Parasrah/hestia.kak" defer hestia %{
     set-option global hestia_key '5912C209160C4D18'
