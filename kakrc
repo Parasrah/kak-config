@@ -93,6 +93,19 @@ hook global WinSetOption filetype=nix %{
     set-option window formatcmd 'nixpkgs-fmt'
 }
 
+hook global WinSetOption filetype=(typescript|typescriptreact) %{
+    set-option window makecmd "npx tsc --noEmit | rg 'TS\d+:' | sed -E 's/^([^\(]+)\(([0-9]+),([0-9]+)\)/\1:\2:\3/'"
+}
+
+hook global WinSetOption filetype=(typescript|typescriptreact|javascript|javascriptreact) %{
+    # TODO: change to ~/.gnpm?
+    set-option window lintcmd 'run() { cat "$1" | npx eslint -f ~/.npm-global/lib/node_modules/eslint-formatter-kakoune/index.js --stdin --stdin-filename "$kak_buffile";} && run '
+    set-option window formatcmd "npx prettier --stdin-filepath %val{buffile}"
+    hook window BufWritePost .* %{
+        lint
+    }
+}
+
 define-command filetype -params 1 -docstring 'Set the current filetype' %{
     set-option window filetype %arg{1}
 }
@@ -212,14 +225,19 @@ plug "ul/kak-lsp" do %{
     set-option global lsp_diagnostic_line_error_sign '✗'
     set-option global lsp_diagnostic_line_warning_sign '⚠'
 
-    define-command lsp-hover-info -docstring "show hover info" %{
+    define-command lsp-hover-info -docstring 'show hover info' %{
       set-option buffer lsp_show_hover_format 'printf %s "${lsp_info}"'
       lsp-hover
     }
 
-    define-command lsp-hover-diagnostics -docstring "show hover diagnostics" %{
+    define-command lsp-hover-diagnostics -docstring 'show hover diagnostics' %{
       set-option buffer lsp_show_hover_format 'printf %s "${lsp_diagnostics}"'
       lsp-hover
+    }
+
+    define-command lsp-restart -docstring 'restart lsp server' %{
+        lsp-exit
+        lsp-start
     }
 
     # TODO: would be nice to have <c-space> trigger explicit LSP completion
