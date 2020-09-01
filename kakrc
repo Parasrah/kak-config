@@ -28,7 +28,7 @@ try %{
 #              options              #
 #───────────────────────────────────#
 
-set-option global startup_info_version 20200804
+set-option global startup_info_version 20200901
 set-option global ui_options 'ncurses_assistant=cat' 'ncurses_set_title=false'
 set-option global path '%/' './' '/usr/include'
 
@@ -298,11 +298,11 @@ plug "eraserhd/kak-ansi" do %{
     make
 }
 
-plug "alexherbo2/prelude.kak" commit "01f00761050cf9cbd92c018d3dc538ffe77a384f"
+plug "alexherbo2/prelude.kak"
 
-plug "alexherbo2/terminal-mode.kak" commit "e42c3a0b65bd6247db96d7f682832f18f488efa5"
+plug "alexherbo2/terminal-mode.kak"
 
-plug "alexherbo2/connect.kak" commit "7846e275822e7d940786b716046738dae5332fcd" config %{
+plug "alexherbo2/connect.kak" config %{
     define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
     }
