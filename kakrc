@@ -320,8 +320,6 @@ plug "alexherbo2/surround.kak" commit "ecb231f51826d1ba9e9a601435d934590db75c00"
     map global user s ': surround<ret>' -docstring 'Enter surround mode'
 }
 
-plug "alexherbo2/auto-pairs.kak" commit "fae942240ebf29ff17983e36d4b420b6a0abdc38"
-
 plug "occivink/kakoune-snippets" config %{
     set-option global snippets_auto_expand false
 
