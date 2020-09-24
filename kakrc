@@ -284,7 +284,7 @@ plug "alexherbo2/prelude.kak"
 
 plug "alexherbo2/terminal-mode.kak"
 
-plug "alexherbo2/connect.kak" config %{
+plug "alexherbo2/connect.kak" defer connect %{} config %{
     define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
     }
@@ -292,7 +292,7 @@ plug "alexherbo2/connect.kak" config %{
     map global user <ret> ' :connect-terminal bash<ret>' -docstring 'open terminal'
 
     alias global nnn nnn-persistent
-}
+} demand
 
 plug "alexherbo2/replace-mode.kak" commit "a569d3df8311a0447e65348a7d48c2dea5415df0" config %{
     map global user r ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
