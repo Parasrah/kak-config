@@ -313,13 +313,17 @@ plug "occivink/kakoune-snippets" config %{
         execute-keys ";Gis%opt{snippets_triggers_regex}<ret>:snippets-expand-trigger<ret>"
     }
 
+    define-command snippets-trigger-last-word -docstring 'Execute any snippet triggers in last WORD before cursor' %{
+        execute-keys ";b<a-I>s%opt{snippets_triggers_regex}<ret>:snippets-expand-trigger<ret>"
+    }
+
     # move to next placeholder
     map global normal <a-ret> ': snippets-select-next-placeholders<ret>'
-    map global insert <a-ret> '<esc>: snippets-select-next-placeholders<ret>'
+    map global insert <a-ret> '<esc>: snippets-select-next-placeholders<ret>i'
 
     # triggers
-    map global insert <a-space> '<esc>: snippets-trigger-line-start<ret>'
-    map global normal <a-space> ': snippets-trigger-line<ret>' -docstring 'trigger snippets in line'
+    map global insert <a-space> '<esc>: snippets-trigger-last-word<ret>i'
+    map global normal <a-space> ': snippets-trigger-last-word<ret>' -docstring 'trigger snippets in line'
 }
 
 plug "JJK96/kakoune-emmet" config %{
