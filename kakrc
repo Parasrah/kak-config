@@ -318,7 +318,7 @@ plug "occivink/kakoune-snippets" config %{
     }
 
     define-command -hidden reenter-insert-mode -docstring 're-enter insert mode after replacing snippet' %{
-        execute-keys -save-regs '"' %sh{
+        execute-keys -save-regs '"' -with-hooks %sh{
             if [ "1" -eq "${kak_selection_length}" ]; then
                 printf %s 'i'
             else
