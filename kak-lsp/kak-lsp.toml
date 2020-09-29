@@ -41,7 +41,7 @@ timeout = 1800 # seconds = 30 minutes
 [language.elixir]
 filetypes = ["elixir"]
 roots = ["mix.exs"]
-command = "language_server.sh"
+command = "elixir-ls"
 
 [language.elm]
 filetypes = ["elm"]

@@ -118,8 +118,8 @@ define-command json %{ filetype 'json' }
 
 # TODO: finish command to select indentation without travelling past a newline after matching indentation
 define-command -hidden text-object-indent %{
-    # execute-keys -save-regs '' -- 'Gh?\S<ret>hy/<c-r>"\S[^\n]*\n\n'
-    execute-keys -save-regs '' -- '<a-/>\n\n<c-r>"\S<ret>gh?\S<ret>Hygi?^<c-r>"\S[^\n]*\n\n<ret>K<a-x>'
+    # execute-keys -save-regs '/' -- 'Gh?\S<ret>hy/<c-r>"\S[^\n]*\n\n'
+    execute-keys -save-regs '/' -- '<a-/>\n\n<c-r>"\S<ret>gh?\S<ret>Hygi?^<c-r>"\S[^\n]*\n\n<ret>K<a-x>'
 }
 
 #───────────────────────────────────#
@@ -317,12 +317,22 @@ plug "occivink/kakoune-snippets" config %{
         execute-keys ";b<a-I>s%opt{snippets_triggers_regex}<ret>:snippets-expand-trigger<ret>"
     }
 
+    define-command -hidden reenter-insert-mode -docstring 're-enter insert mode after replacing snippet' %{
+        execute-keys -save-regs '"' %sh{
+            if [ "1" -eq "${kak_selection_length}" ]; then
+                printf %s 'i'
+            else
+                printf %s 'c'
+            fi
+        }
+    }
+
     # move to next placeholder
     map global normal <a-ret> ': snippets-select-next-placeholders<ret>'
-    map global insert <a-ret> '<esc>: snippets-select-next-placeholders<ret>i'
+    map global insert <a-ret> '<esc>: snippets-select-next-placeholders<ret>: reenter-insert-mode<ret>'
 
     # triggers
-    map global insert <a-space> '<esc>: snippets-trigger-last-word<ret>i'
+    map global insert <a-space> '<esc>: snippets-trigger-last-word<ret>: reenter-insert-mode<ret>'
     map global normal <a-space> ': snippets-trigger-last-word<ret>' -docstring 'trigger snippets in line'
 }
 
