@@ -318,12 +318,12 @@ plug "occivink/kakoune-snippets" config %{
     }
 
     # move to next placeholder
-    map global normal <a-ret> ': snippets-select-next-placeholders<ret>'
-    map global insert <a-ret> '<esc>: snippets-select-next-placeholders<ret>i'
+    map global normal <a-space> ': snippets-select-next-placeholders<ret>'
+    map global insert <a-space> '<esc>: snippets-select-next-placeholders<ret>i'
 
     # triggers
-    map global insert <a-space> '<esc>: snippets-trigger-last-word<ret>i'
-    map global normal <a-space> ': snippets-trigger-last-word<ret>' -docstring 'trigger snippets in line'
+    map global insert <a-ret> '<esc>: snippets-trigger-last-word<ret>i'
+    map global normal <a-ret> ': snippets-trigger-last-word<ret>' -docstring 'trigger snippets in line'
 }
 
 plug "JJK96/kakoune-emmet" config %{
