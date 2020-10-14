@@ -1,20 +1,20 @@
-# generated using 'ls | xargs -I {} git --git-dir=./{}/.git log -1 @ | rg commit' (primitive)
-clipboard.kak e1a4b3c5e84a656bbe7218779e0ce3fe2d08c8c9
-connect.kak 1ca2580782fa59ce8600f4a0d6a1485539ad522e
-csharp.kak 0cec0cea23b4f77a6dbcada4edaa4f6517228fcd
+# generated using 'ls | xargs -I {} git --git-dir=./{}/.git log -1 @ | rg ^commit' (primitive)
+casing.kak bd579f04bbd17c3d8612ad0505a6641a78e239df
+clipboard.kak adfdff94e2ae03ef04d93fb6a61822198095b667
+connect.kak c5627bc033ca73f217626daa1b12dd8577c8e661
 filelist.kak c5f97e585426f781504410c6899df4e1b8654dda
 fzf.kak f23daa698ad95493fbd675ae153e3cac13ef34e9
+hestia.kak 806612bb6369fe607a973b64fc617bc2bfe64277
 i3.kak 8e3d0b7ec1a1a8e18fe01bf8b2f6eb19c841cc58
 kak-ansi 4d9ca803d6c60d1fb2d46838dae9874fe5e52dab
-kak-lsp a69bc9599c57cef1ea7fad97e3483f80708e4ba4
+kak-lsp dd5a3ce700bd04c24db713000e30be23927366f3
 kakoune-emmet df614cbc60b6369cfdeb875e91721495ac0def94
 kakoune-snippets 94931c20fa009e2a1cb2f115d8885c257582851c
 kakoune-state-save ab7c0c765326a4a80af78857469ee8c80814c52a
 kitty.kak f2ff078f28ec306907b0014a1df1bdc4b569e22b
-plug.kak dc7823d820b8b2c268b56f6006441b9019efaff1
-prelude.kak bd66886500ab004baa255065f2dad19909ece2c4
+plug.kak cf02b00f3764cbd03ce9ab6eec2f4eed035c0737
+prelude.kak f1e0f4d5cb62a36924e3f8ba6824d6aed8c19d23
 replace-mode.kak a569d3df8311a0447e65348a7d48c2dea5415df0
-smarttab.kak c585da5aa3e5cf9d1264e6296b6e6ee808e3d102
+smarttab.kak e7fe8efd0b91ab8dc1c99c131f138de9b38fd965
 surround.kak ecb231f51826d1ba9e9a601435d934590db75c00
-terminal-mode.kak d0a73b6a705d4962508a6aa7158d2e055b5256ef
-typescript.kak 5201697fb7d11dd06d11fa478668b959492c3ac9
+terminal-mode.kak a702ae5861d148dbd3daa5606e664531d9abb4bf
