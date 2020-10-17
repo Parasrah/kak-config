@@ -1,0 +1,31 @@
+module Data.${1} exposing (${1})
+
+
+
+{- Model -}
+
+
+type ${1}
+	= ${1} I${1}
+
+
+type alias IConfig =
+	{
+	}
+
+
+
+{- Access -}
+
+
+access : (I${1} -> a) -> ${1} -> a
+access accessor (${1} i) =
+	accessor i
+
+
+
+{- Util -}
+
+{- JSON -}
+
+{- HTTP -}
