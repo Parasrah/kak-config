@@ -52,6 +52,9 @@ map global user f ':format<ret>' -docstring 'Format'
 map global normal '#' ':comment-line<ret>' -docstring 'comment selected lines'
 map global normal <a-#> ':comment-block<ret>' -docstring 'comment block'
 
+# select under cursor
+map global user S '<a-i>w*%s<c-r>/<ret>'
+
 #───────────────────────────────────#
 #             filetypes             #
 #───────────────────────────────────#
@@ -228,6 +231,7 @@ plug "ul/kak-lsp" do %{
     hook global WinSetOption lsp_language=elm %{
         # TODO: remove after https://github.com/ul/kak-lsp/issues/40 resolved
         set-option buffer lsp_completion_fragment_start %{execute-keys <esc><a-h>s\$?[\w.]+.\z<ret>}
+        set-option buffer lsp_completion_trigger %{ fail "completion disabled" }
     }
 
     hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python) %{
