@@ -246,6 +246,7 @@ plug "ul/kak-lsp" do %{
         map window user <a-l> ':lsp-goto-next-match<ret>' -docstring 'LSP goto next'
         map window user <a-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
         map window user <a-j> ':lsp-find-error<ret>' -docstring 'goto next LSP error'
+        map window user r ':lsp-rename-prompt<ret>' -docstring 'rename'
     }
 }
 
@@ -299,7 +300,7 @@ plug "alexherbo2/connect.kak" defer connect %{} config %{
 } demand
 
 plug "alexherbo2/replace-mode.kak" commit "a569d3df8311a0447e65348a7d48c2dea5415df0" config %{
-    map global user r ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
+    map global user R ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
 }
 
 plug "alexherbo2/surround.kak" commit "ecb231f51826d1ba9e9a601435d934590db75c00" config %{
