@@ -55,6 +55,9 @@ map global normal <a-#> ':comment-block<ret>' -docstring 'comment block'
 # select under cursor
 map global user S '<a-i>w*%s<c-r>/<ret>'
 
+# wrap
+map global normal = '|fmt -w $kak_opt_autowrap_column<ret>'
+
 #───────────────────────────────────#
 #             filetypes             #
 #───────────────────────────────────#
