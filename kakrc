@@ -83,8 +83,13 @@ hook global WinSetOption filetype=json %{
     set-option window formatcmd "jq --monochrome-output '.'"
 }
 
+hook global WinSetOption filetype=(asciidoc|markdown) %{
+    set-option window formatcmd "fmt -w %opt{autowrap_column} -"
+}
+
 hook global WinSetOption filetype=elm %{
     set-option window formatcmd 'elm-format --stdin'
+    # TODO: set makecmd
 }
 
 hook global WinSetOption filetype=elixir %{
