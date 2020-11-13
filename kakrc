@@ -302,7 +302,7 @@ plug "alexherbo2/connect.kak" defer connect %{} config %{
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
     }
 
-    map global user <ret> ' :connect-terminal bash<ret>' -docstring 'open terminal'
+    map global user <ret> ' :connect-terminal<ret>' -docstring 'open terminal'
 
     alias global nnn nnn-persistent
 } demand
@@ -350,6 +350,9 @@ plug "occivink/kakoune-snippets" config %{
 }
 
 plug "JJK96/kakoune-emmet" config %{
+    # FIXME: this fails when there is any other code on that line
+    # ideally I would like this to go back until it hits ^ or the first
+    # whitespace that is not inside of pairs ([],{},"",'')
     map global insert <a-e> '<esc>giGl: emmet<ret>i'
 }
 
