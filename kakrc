@@ -89,7 +89,7 @@ hook global WinSetOption filetype=(asciidoc|markdown) %{
 
 hook global WinSetOption filetype=elm %{
     set-option window formatcmd 'elm-format --stdin'
-    # TODO: set makecmd
+    set-option window makecmd "elm make src/Main.elm 2>&1 | kak -n -q -f '<percent>s<minus><minus><space>[\w|<space>]<plus><minus><plus><ret><a-semicolon><semicolon>i<ret><esc>Wdf<minus><semicolon>?\w<ret>Hdgll?^\d<plus>\|<ret>GiHdi<space><esc>f|a<space><esc><semicolon>?[^<space>]<ret>Hdxd<percent><a-R>gif|<a-f><space><semicolon>r:f|<semicolon>r:<a-F><space>Lc|<space><esc>giPi<space><esc>gi'"
 }
 
 hook global WinSetOption filetype=elixir %{
