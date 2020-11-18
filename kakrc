@@ -58,6 +58,29 @@ map global user S '<a-i>w*%s<c-r>/<ret>'
 # wrap
 map global normal = '|fmt -w $kak_opt_autowrap_column<ret>'
 
+# delete
+map global insert <c-l> '<del>'
+
+# jump to left/right of selection
+define-command swap-insert-side %{
+    execute-keys -with-hooks %sh{
+        selection="$kak_selection_desc"
+        regex="[0-9]+[.]([0-9]+),[0-9]+[.]([0-9]+)"
+        first=$(printf %s "$selection" | sed -r -e "s/${regex}/\1/")
+        second=$(printf %s "$selection" | sed -r -e "s/${regex}/\2/")
+        if [ "$first" -eq "$second" ]; then
+            printf %s 'i'
+        elif [ "$first" -gt "$second" ]; then
+            printf %s 'a'
+        else
+            printf %s 'i'
+        fi
+    }
+}
+
+map global insert <a-[> '<esc>: swap-insert-side<ret>'
+
+
 #───────────────────────────────────#
 #             filetypes             #
 #───────────────────────────────────#
@@ -323,21 +346,8 @@ plug "alexherbo2/connect.kak" defer connect %{} config %{
     alias global nnn nnn-persistent
 } demand
 
-plug "alexherbo2/auto-pairs.kak" defer auto-pairs %{
-    auto-pairs-enable
-} demand
-
 plug "alexherbo2/replace-mode.kak" commit "a569d3df8311a0447e65348a7d48c2dea5415df0" config %{
     map global user R ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
-}
-
-plug "alexherbo2/surround.kak" commit "ecb231f51826d1ba9e9a601435d934590db75c00" config %{
-    define-command -hidden enter-surround-mode %{
-        auto-pairs-disable
-        surround
-        auto-pairs-enable
-    }
-    map global user s ': enter-surround-mode<ret>' -docstring 'Enter surround mode'
 }
 
 plug "occivink/kakoune-snippets" config %{

@@ -38,3 +38,13 @@ httpie:: curl replacement
 emmet-cli:: emmet cli wrapper
 kitty:: terminal emulator
 nnn:: terminal file manager
+
+== Future Features
+
+=== "IDE" experience
+
+It should be possible to:
+
+1) setup command to open nnn left, new kakoune client below (make buffer?)
+2) name original client 'main', bottom client 'tools'
+3) set 'main' as jumpclient, 'tools' as toolsclient
