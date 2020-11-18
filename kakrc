@@ -174,12 +174,18 @@ map global user k ':lint-previous-message<ret>' -docstring 'Jump to the previous
 map global user j ':lint-next-message<ret>' -docstring 'Jump to the next lint message'
 
 define-command ide %{
-    # TODO: open nnn to left, toolsclient below
+    # TODO: fix this
     rename-client main
     set-option global jumpclient main
 
-    new rename-client tools
+    i3-new-down ':rename-client <space> tools<ret>'
     set-option global toolsclient tools
+
+    nop %sh{ i3-msg move up }
+
+    alias global terminal i3-terminal-l
+    nnn
+    set-i3-terminal-alias
 }
 
 #───────────────────────────────────#
@@ -307,12 +313,21 @@ plug "alexherbo2/connect.kak" defer connect %{} config %{
     alias global nnn nnn-persistent
 } demand
 
+plug "alexherbo2/auto-pairs.kak" defer auto-pairs %{
+    auto-pairs-enable
+} demand
+
 plug "alexherbo2/replace-mode.kak" commit "a569d3df8311a0447e65348a7d48c2dea5415df0" config %{
     map global user R ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
 }
 
 plug "alexherbo2/surround.kak" commit "ecb231f51826d1ba9e9a601435d934590db75c00" config %{
-    map global user s ': surround<ret>' -docstring 'Enter surround mode'
+    define-command -hidden enter-surround-mode %{
+        auto-pairs-disable
+        surround
+        auto-pairs-enable
+    }
+    map global user s ': enter-surround-mode<ret>' -docstring 'Enter surround mode'
 }
 
 plug "occivink/kakoune-snippets" config %{
@@ -402,6 +417,8 @@ plug "Parasrah/clipboard.kak" defer clipboard %{
     define-command copy-line-commit -docstring 'copy commit hash for current line' %{
         set-register %opt{clipboard_register} %sh( git blame -l -L "${kak_cursor_line},${kak_cursor_line}" -p -- "${kak_buffile}" | head -n 1 | awk '{print $1}' )
     }
+
+    # TODO: create keymap for "py and "pp
 } demand
 
 plug "Parasrah/hestia.kak" defer hestia %{
