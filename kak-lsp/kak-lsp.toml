@@ -111,7 +111,8 @@ args = ["start"]
 [language.rust]
 filetypes = ["rust"]
 roots = ["Cargo.toml"]
-command = "rls"
+command = "sh"
+args = ["-c", "if command -v rustup >/dev/null; then $(rustup which rust-analyzer); else rust-analyzer; fi"]
 
 [language.python]
 filetypes = ["python"]

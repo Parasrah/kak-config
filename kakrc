@@ -89,7 +89,8 @@ hook global WinSetOption filetype=(asciidoc|markdown) %{
 
 hook global WinSetOption filetype=elm %{
     set-option window formatcmd 'elm-format --stdin'
-    set-option window makecmd "elm make src/Main.elm 2>&1 | kak -n -q -f '<percent>s<minus><minus><space>[\w|<space>]<plus><minus><plus><ret><a-semicolon><semicolon>i<ret><esc>Wdf<minus><semicolon>?\w<ret>Hdgll?^\d<plus>\|<ret>GiHdi<space><esc>f|a<space><esc><semicolon>?[^<space>]<ret>Hdxd<percent><a-R>gif|<a-f><space><semicolon>r:f|<semicolon>r:<a-F><space>Lc|<space><esc>giPi<space><esc>gi'"
+    # TODO: fix this for success
+    set-option window makecmd "elm make src/Main.elm --output=/dev/null 2>&1 | kak -n -q -f '<percent>s<minus><minus><space>[\w|<space>]<plus><minus><plus><ret><a-semicolon><semicolon>i<ret><esc>Wdf<minus><semicolon>?\w<ret>Hdgll?^\d<plus>\|<ret>GiHdi<space><esc>f|a<space><esc><semicolon>?[^<space>]<ret>Hdxd<percent><a-R>gif|<a-f><space><semicolon>r:f|<semicolon>r:<a-F><space>Lc|<space><esc>giPi<space><esc>gi'"
 }
 
 hook global WinSetOption filetype=elixir %{
@@ -248,7 +249,7 @@ plug "ul/kak-lsp" do %{
         set-option buffer lsp_completion_trigger %{ fail "completion disabled" }
     }
 
-    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python) %{
+    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python|rust) %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
@@ -261,6 +262,15 @@ plug "ul/kak-lsp" do %{
         map window user <a-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
         map window user <a-j> ':lsp-find-error<ret>' -docstring 'goto next LSP error'
         map window user r ':lsp-rename-prompt<ret>' -docstring 'rename'
+    }
+
+    hook global WinSetOption filetype=rust %{
+        hook window -group rust-inlay-hints BufReload .* rust-analyzer-inlay-hints
+        hook window -group rust-inlay-hints NormalIdle .* rust-analyzer-inlay-hints
+        hook window -group rust-inlay-hints InsertIdle .* rust-analyzer-inlay-hints
+        hook -once -always window WinSetOption filetype=.* %{
+            remove-hooks window rust-inlay-hints
+        }
     }
 }
 
