@@ -80,7 +80,6 @@ define-command swap-insert-side %{
 
 map global insert <a-[> '<esc>: swap-insert-side<ret>'
 
-
 #───────────────────────────────────#
 #             filetypes             #
 #───────────────────────────────────#
@@ -174,10 +173,24 @@ define-command -hidden toggle-git-blame %{ evaluate-commands %sh{
 declare-user-mode git
 map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
 map global git b ' :toggle-git-blame<ret>' -docstring 'toggle blame'
-map global git s ' :git status<ret>' -docstring 'git status'
+map global git i ' :git status<ret>' -docstring 'git status'
 map global git c ' :git commit<ret>' -docstring 'git commit'
 map global git d ' :git diff %val{buffile}<ret>' -docstring 'git diff (current file)'
-map global git y ' :copy-line-commit<ret>' -docstring 'copy commit for current line'
+map global git l ' :git log -- %val{bufname}<ret>' -docstring 'git log (current file)'
+map global git s ' :git show %val{selection}<ret>' -docstring 'git show (current selection)'
+
+#───────────────────────────────────#
+#                yank               #
+#───────────────────────────────────#
+
+define-command yank-line-commit -params 1 -docstring 'yank commit hash for current line' %{
+    set-register %arg{0} %sh( git blame -l -L "${kak_cursor_line},${kak_cursor_line}" -p -- "${kak_buffile}" | head -n 1 | awk '{print $1}' )
+}
+
+declare-user-mode yank
+map global user y ':enter-user-mode yank<ret>' -docstring 'yank mode'
+map global yank b ' :set-register " %val{bufname}<ret>' -docstring 'yank bufname'
+map global yank g ' :yank-line-commit "<ret>' -docstring 'yank commit for current line'
 
 #───────────────────────────────────#
 #             whitespace            #
@@ -434,9 +447,10 @@ plug "Parasrah/filelist.kak"
 plug "Parasrah/casing.kak"
 
 plug "Parasrah/clipboard.kak" defer clipboard %{
-    define-command copy-line-commit -docstring 'copy commit hash for current line' %{
-        set-register %opt{clipboard_register} %sh( git blame -l -L "${kak_cursor_line},${kak_cursor_line}" -p -- "${kak_buffile}" | head -n 1 | awk '{print $1}' )
-    }
+    declare-user-mode copy
+    map global user c ':enter-user-mode copy<ret>' -docstring 'copy mode'
+    map global copy b ' :set-register %opt{clipboard_register} %val{bufname}<ret>' -docstring 'copy bufname'
+    map global copy g ' :yank-line-commit %opt{clipboard_register}<ret>' -docstring 'copy commit for current line'
 
     # TODO: create keymap for "py and "pp
 } demand
