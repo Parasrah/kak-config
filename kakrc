@@ -105,10 +105,6 @@ hook global WinSetOption filetype=json %{
     set-option window formatcmd "jq --monochrome-output '.'"
 }
 
-hook global WinSetOption filetype=(asciidoc|markdown) %{
-    set-option window formatcmd "fmt -w %opt{autowrap_column} -"
-}
-
 hook global WinSetOption filetype=elm %{
     set-option window formatcmd 'elm-format --stdin'
     # TODO: fix this for success
@@ -189,7 +185,7 @@ define-command yank-line-commit -params 1 -docstring 'yank commit hash for curre
 
 declare-user-mode yank
 map global user y ':enter-user-mode yank<ret>' -docstring 'yank mode'
-map global yank b ' :set-register " %val{bufname}<ret>' -docstring 'yank bufname'
+map global yank b ' :set-register %{"} %val{bufname}<ret>' -docstring 'yank bufname'
 map global yank g ' :yank-line-commit "<ret>' -docstring 'yank commit for current line'
 
 #───────────────────────────────────#
