@@ -156,6 +156,10 @@ define-command -hidden text-object-indent %{
 #                git                #
 #───────────────────────────────────#
 
+map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
+
+declare-user-mode git
+
 declare-option -hidden bool git_blame_enabled false
 
 define-command -hidden toggle-git-blame %{ evaluate-commands %sh{
@@ -166,14 +170,24 @@ define-command -hidden toggle-git-blame %{ evaluate-commands %sh{
     fi
 } }
 
-declare-user-mode git
-map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
 map global git b ' :toggle-git-blame<ret>' -docstring 'toggle blame'
 map global git i ' :git status<ret>' -docstring 'git status'
 map global git c ' :git commit<ret>' -docstring 'git commit'
 map global git d ' :git diff %val{buffile}<ret>' -docstring 'git diff (current file)'
 map global git l ' :git log -- %val{bufname}<ret>' -docstring 'git log (current file)'
-map global git s ' :git show %val{selection}<ret>' -docstring 'git show (current selection)'
+map global git s ':enter-user-mode git-show<ret>' -docstring 'git show mode'
+
+declare-user-mode git-show
+
+define-command git-show-line-commit %{
+    evaluate-commands %sh{
+        line_commit=$(git blame -l -L "${kak_cursor_line},${kak_cursor_line}" -p -- "${kak_buffile}" | head -n 1 | awk '{print $1}')
+        printf %s "git show ${line_commit}"
+    }
+}
+
+map global git-show s ' :git show %val{selection}<ret>' -docstring 'show current selection'
+map global git-show l " :git-show-line-commit<ret>" -docstring 'show line commit'
 
 #───────────────────────────────────#
 #                yank               #
