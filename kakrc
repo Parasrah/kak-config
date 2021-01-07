@@ -36,6 +36,15 @@ set-option global path '%/' './' '/usr/include'
 #               misc                #
 #───────────────────────────────────#
 
+# restart
+define-command restart -docstring 'restart instance of kakoune' %{
+    nop %sh{ {
+        sleep 0.1
+        echo "k" | kitty @ --to=$kak_client_env_KITTY_LISTEN_ON send-text --stdin
+    } > /dev/null 2>&1 < /dev/null & }
+    kill
+}
+
 # editorconfig
 hook global BufOpenFile .* %{ editorconfig-load }
 hook global BufNewFile .* %{ editorconfig-load }
