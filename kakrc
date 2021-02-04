@@ -152,6 +152,10 @@ define-command filetype -params 1 -docstring 'Set the current filetype' %{
     set-option window filetype %arg{1}
 }
 
+hook global BufCreate .*[.]less %{
+    set-option buffer filetype css
+}
+
 define-command json %{ filetype 'json' }
 
 #───────────────────────────────────#
