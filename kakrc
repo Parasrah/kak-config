@@ -277,7 +277,7 @@ source "%val{config}/plugins/plug.kak/rc/plug.kak"
 
 plug "andreyorst/plug.kak" noload
 
-plug "ul/kak-lsp" do %{
+plug "kak-lsp/kak-lsp" do %{
     cargo install --locked --force --path .
 } config %{
     # set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
