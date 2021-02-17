@@ -210,7 +210,7 @@ map global git-show l " :git-show-line-commit<ret>" -docstring 'show line commit
 #───────────────────────────────────#
 
 define-command yank-line-commit -params 1 -docstring 'yank commit hash for current line' %{
-    set-register %arg{0} %sh( git blame -l -L "${kak_cursor_line},${kak_cursor_line}" -p -- "${kak_buffile}" | head -n 1 | awk '{print $1}' )
+    set-register %arg{1} %sh( git blame -l -L "${kak_cursor_line},${kak_cursor_line}" -p -- "${kak_buffile}" | head -n 1 | awk '{print $1}' )
 }
 
 declare-user-mode yank
@@ -311,7 +311,7 @@ plug "kak-lsp/kak-lsp" do %{
         set-option buffer lsp_completion_trigger %{ fail "completion disabled" }
     }
 
-    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python|rust) %{
+    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python|rust|csharp) %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
