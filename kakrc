@@ -482,7 +482,7 @@ plug "Parasrah/clipboard.kak" defer clipboard %{
 } demand
 
 plug "Parasrah/hestia.kak" defer hestia %{
-    set-option global hestia_key '5912C209160C4D18'
+    set-option global hestia_key '228D281AFA2D36F1DC23E1DD111024A37E3DC35A'
 
     hestia-load-machine
     hestia-load-project
