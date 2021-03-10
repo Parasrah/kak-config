@@ -74,12 +74,20 @@ map global insert <c-l> '<del>'
 define-command swap-insert-side %{
     execute-keys -with-hooks %sh{
         selection="$kak_selection_desc"
-        regex="[0-9]+[.]([0-9]+),[0-9]+[.]([0-9]+)"
-        first=$(printf %s "$selection" | sed -r -e "s/${regex}/\1/")
-        second=$(printf %s "$selection" | sed -r -e "s/${regex}/\2/")
-        if [ "$first" -eq "$second" ]; then
-            printf %s 'i'
-        elif [ "$first" -gt "$second" ]; then
+        regex="([0-9]+)[.]([0-9]+),([0-9]+)[.]([0-9]+)"
+
+        a1=$(printf %s "$selection" | sd -- "$regex" '$1')
+        a2=$(printf %s "$selection" | sd -- "$regex" '$2')
+        b1=$(printf %s "$selection" | sd -- "$regex" '$3')
+        b2=$(printf %s "$selection" | sd -- "$regex" '$4')
+
+        if [ "$a1" -eq "$b1" ]; then
+            if [ "$a2" -gt "$b2" ]; then
+                printf %s 'a'
+            else
+                printf %s 'i'
+            fi
+        elif [ "$a1" -gt "$b1" ]; then
             printf %s 'a'
         else
             printf %s 'i'

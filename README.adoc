@@ -31,6 +31,7 @@ file:: utility to determine file type
 jq:: allows parsing json
 git:: version control
 i3:: window manager
+sd:: faster sed replacement
 dirname:: used to extract directory name from path
 editorconfig-core-c:: used to load editorconfig settings
 bc:: math
