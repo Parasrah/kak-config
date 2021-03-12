@@ -36,6 +36,9 @@ set-option global path '%/' './' '/usr/include'
 #               misc                #
 #───────────────────────────────────#
 
+# aliases
+alias global rg grep
+
 # restart
 define-command restart -docstring 'restart instance of kakoune' %{
     nop %sh{ {
