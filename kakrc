@@ -40,10 +40,10 @@ set-option global path '%/' './' '/usr/include'
 alias global rg grep
 
 # restart
-define-command restart -docstring 'restart instance of kakoune' %{
+define-command restart -params 0..1 -file-completion -docstring 'restart instance of kakoune' %{
     nop %sh{ {
         sleep 0.1
-        echo "k" | kitty @ --to=$kak_client_env_KITTY_LISTEN_ON send-text --stdin
+        echo "k $1" | kitty @ --to=$kak_client_env_KITTY_LISTEN_ON send-text --stdin
     } > /dev/null 2>&1 < /dev/null & }
     kill
 }
@@ -101,16 +101,38 @@ define-command swap-insert-side %{
 map global insert <a-[> '<esc>: swap-insert-side<ret>'
 
 # sql
-declare-option str sqlcmd ''
-define-command sql-exec -docstring 'executes current selection as an SQL script' %{
+# TODO: use sql_db
+declare-option str sql_db ''
+declare-option str sql_cmd ''
+define-command sql-exec-curr-selection -docstring 'executes current selection as an SQL script' %{
     nop %sh{ {
-        if [ -z "$kak_opt_sqlcmd" ]; then
-            echo "eval -client '$kak_client' fail 'sqlcmd is not set'" | kak -p "${kak_session}"
+        if [ -z "$kak_opt_sql_cmd" ]; then
+            echo "eval -client '$kak_client' fail 'sql_cmd is not set'" | kak -p "${kak_session}"
             exit 1
         fi
-        output=$(eval "printf %s '$kak_selection' | $kak_opt_sqlcmd 2>&1")
         # I hate ****ing quotes
-        output=$(printf %s "$output" | sd "'" "'\''")
+        selection=$(printf %s "$kak_selection" | sd "'" "'\\\''")
+        output=$(eval "printf %s '$selection' | $kak_opt_sql_cmd 2>&1")
+        # I hate ****ing quotes
+        output=$(printf %s "$output" | sd "'" "'\\\''")
+        client="$kak_client"
+        if [ ! -z "$kak_opt_toolsclient" ]; then
+            client="$kak_opt_toolsclient"
+        fi
+        echo "eval -client '$client' -verbatim show-sql '$output'" | kak -p "${kak_session}"
+    } > /dev/null 2>&1 < /dev/null & }
+}
+
+declare-option str sql_buffer_cmd ''
+define-command sql-exec-curr-file -docstring 'executes current file as SQL script' %{
+    nop %sh{ {
+        if [ -z "$kak_opt_sql_buffer_cmd" ]; then
+            echo "eval -client '$kak_client' fail 'sql_buffer_cmd is not set'" | kak -p "${kak_session}"
+            exit 1
+        fi
+        output=$(eval "printf %s '$kak_buffile' | $kak_opt_sql_buffer_cmd 2>&1")
+        # I hate ****ing quotes
+        output=$(printf %s "$output" | sd "'" "'\\\''")
         client="$kak_client"
         if [ ! -z "$kak_opt_toolsclient" ]; then
             client="$kak_opt_toolsclient"
@@ -125,6 +147,15 @@ define-command show-sql -hidden -params 1 -docstring 'display sql output' %{
     set-register '"' %arg{1}
     execute-keys Pgg
 }
+
+declare-user-mode sql
+
+hook global WinSetOption filetype=sql %{
+    map window user s ':enter-user-mode sql<ret>' -docstring 'sql mode'
+}
+
+map global sql s ':sql-exec-curr-selection<ret>' -docstring 'execute current selection'
+map global sql f ':sql-exec-curr-file<ret>' -docstring 'execute current file'
 
 #───────────────────────────────────#
 #             filetypes             #
@@ -281,11 +312,15 @@ define-command ide %{
     i3-new-down ':rename-client <space> tools<ret>'
     set-option global toolsclient tools
 
-    nop %sh{ i3-msg move up }
+    nop %sh{
+        sleep 0.5
+        i3-msg focus up
+        sleep 0.5
+    }
 
-    alias global terminal i3-terminal-l
-    nnn
-    set-i3-terminal-alias
+    # alias global terminal i3-terminal-l
+    # nnn
+    # set-i3-terminal-alias
 }
 
 #───────────────────────────────────#
