@@ -194,6 +194,10 @@ hook global WinSetOption filetype=elixir %{
     set-option window formatcmd 'mix format -'
 }
 
+hook global WinSetOption filetype=rust %{
+    set-option window formatcmd 'rustfmt'
+}
+
 hook global WinSetOption filetype=python %{
     set-option window formatcmd 'autopep8 -'
 }
@@ -354,7 +358,7 @@ plug "andreyorst/plug.kak" noload
 plug "kak-lsp/kak-lsp" do %{
     cargo install --locked --force --path .
 } config %{
-    # set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
+    # set global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
     declare-option -hidden str lsp_language ''
 
     set-option global lsp_hover_anchor true
