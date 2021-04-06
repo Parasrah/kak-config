@@ -100,6 +100,32 @@ define-command swap-insert-side %{
 
 map global insert <a-[> '<esc>: swap-insert-side<ret>'
 
+# sql
+declare-option str sqlcmd ''
+define-command sql-exec -docstring 'executes current selection as an SQL script' %{
+    nop %sh{ {
+        if [ -z "$kak_opt_sqlcmd" ]; then
+            echo "eval -client '$kak_client' fail 'sqlcmd is not set'" | kak -p "${kak_session}"
+            exit 1
+        fi
+        output=$(eval "printf %s '$kak_selection' | $kak_opt_sqlcmd 2>&1")
+        # I hate ****ing quotes
+        output=$(printf %s "$output" | sd "'" "'\''")
+        client="$kak_client"
+        if [ ! -z "$kak_opt_toolsclient" ]; then
+            client="$kak_opt_toolsclient"
+        fi
+        echo "eval -client '$client' -verbatim show-sql '$output'" | kak -p "${kak_session}"
+    } > /dev/null 2>&1 < /dev/null & }
+}
+
+define-command show-sql -hidden -params 1 -docstring 'display sql output' %{
+    edit! -scratch *sqlout*
+    set-option buffer filetype sqlout
+    set-register '"' %arg{1}
+    execute-keys Pgg
+}
+
 #───────────────────────────────────#
 #             filetypes             #
 #───────────────────────────────────#
@@ -493,7 +519,7 @@ plug "Parasrah/clipboard.kak" defer clipboard %{
 } demand
 
 plug "Parasrah/hestia.kak" defer hestia %{
-    set-option global hestia_key '228D281AFA2D36F1DC23E1DD111024A37E3DC35A'
+    set-option global hestia_key 'B909C2B388D31FD5CBCAE1A94CBE600F7547E797'
 
     hestia-load-machine
     hestia-load-project
