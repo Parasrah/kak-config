@@ -113,8 +113,8 @@ define-command sql-exec-curr-selection -docstring 'executes current selection as
         # I hate ****ing quotes
         selection=$(printf %s "$kak_selection" | sd "'" "'\\\''")
         output=$(eval "printf %s '$selection' | $kak_opt_sql_cmd 2>&1")
-        # I hate ****ing quotes
-        output=$(printf %s "$output" | sd "'" "'\\\''")
+        # TODO: fix this
+        output=$(printf %s "$output" | sd "'" '"')
         client="$kak_client"
         if [ ! -z "$kak_opt_toolsclient" ]; then
             client="$kak_opt_toolsclient"
@@ -131,8 +131,8 @@ define-command sql-exec-curr-file -docstring 'executes current file as SQL scrip
             exit 1
         fi
         output=$(eval "printf %s '$kak_buffile' | $kak_opt_sql_buffer_cmd 2>&1")
-        # I hate ****ing quotes
-        output=$(printf %s "$output" | sd "'" "'\\\''")
+        # TODO: fix this
+        output=$(printf %s "$output" | sd "'" '"')
         client="$kak_client"
         if [ ! -z "$kak_opt_toolsclient" ]; then
             client="$kak_opt_toolsclient"
@@ -152,6 +152,8 @@ declare-user-mode sql
 
 hook global WinSetOption filetype=sql %{
     map window user s ':enter-user-mode sql<ret>' -docstring 'sql mode'
+    set-option window formatcmd "pg_format -"
+    set-option window comment_line '--'
 }
 
 map global sql s ':sql-exec-curr-selection<ret>' -docstring 'execute current selection'
