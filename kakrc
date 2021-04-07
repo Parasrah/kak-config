@@ -108,11 +108,8 @@ declare-option str sql_selection_cmd ''
 declare-option str sql_file_cmd ''
 
 define-command sql-exec-selection -docstring 'execute selection as sql' %{
-    nop %sh{ {
-        if [ -z "$kak_opt_sql_selection_cmd" ]; then
-            echo "eval -client '$kak_client' fail 'sql_selection_cmd is not set'" | kak -p "${kak_session}"
-            exit 1
-        fi
+    sql-test-inputs 'sql_selection_cmd' %opt{sql_selection_cmd}
+    evaluate-commands %sh{
         # Create a temporary fifo for communication
         output=$(mktemp -d -t kak-sql-XXXXXXXX)/fifo
         cmd=$(printf %s "$kak_opt_sql_selection_cmd" | sd '\{sql_db\}' "$kak_opt_sql_db" | sd '\{sql_user\}' "$kak_opt_sql_user" | sd '\{sql_pass\}' "$kak_opt_sql_pass")
@@ -124,26 +121,14 @@ define-command sql-exec-selection -docstring 'execute selection as sql' %{
         # run command detached from the shell
         { eval "printf %s '$selection' | $cmd" > ${output}; } > /dev/null 2>&1 < /dev/null &
 
-        # determine client
-        client="$kak_client"
-        if [ ! -z "$kak_opt_toolsclient" ]; then
-            client="$kak_opt_toolsclient"
-        fi
-
         # open in client
-        echo "eval -client '$client' 'edit! -fifo ${output} *sqlout*
-            set-option buffer filetype sqlout
-            hook buffer BufClose .* %{ nop %sh{ rm -r $(dirname ${output})} }'" \
-            | kak -p "${kak_session}"
-    } > /dev/null 2>&1 < /dev/null & }
+        echo "show-sql '$output'"
+    }
 }
 
 define-command sql-exec-file -docstring 'execute file as sql' %{
-    nop %sh{ {
-        if [ -z "$kak_opt_sql_file_cmd" ]; then
-            echo "eval -client '$kak_client' fail 'sql_file_cmd is not set'" | kak -p "${kak_session}"
-            exit 1
-        fi
+    sql-test-inputs 'sql_file_cmd' %opt{sql_file_cmd}
+    evaluate-commands %sh{
         # Create a temporary fifo for communication
         output=$(mktemp -d -t kak-sql-XXXXXXXX)/fifo
         cmd=$(printf %s "$kak_opt_sql_file_cmd" | sd '\{sql_db\}' "$kak_opt_sql_db" | sd '\{sql_user\}' "$kak_opt_sql_user" | sd '\{sql_pass\}' "$kak_opt_sql_pass")
@@ -152,18 +137,41 @@ define-command sql-exec-file -docstring 'execute file as sql' %{
         # run command detached from the shell
         { eval "printf %s '$kak_buffile' | $cmd" > ${output}; } > /dev/null 2>&1 < /dev/null &
 
+        # open in client
+        echo "show-sql '$output'"
+    }
+}
+
+define-command sql-test-inputs -hidden -params 2 %{
+    evaluate-commands %sh{
+        if [ -z "$2" ]; then
+            echo "fail '$1 is not set'"
+        elif [ -z "$kak_opt_sql_user" ]; then
+            echo "fail 'sql_user is not set'"
+        elif [ -z "$kak_opt_sql_db" ]; then
+            echo "fail 'sql_db is not set'"
+        elif [ -z "$kak_opt_sql_pass" ]; then
+            echo "fail 'sql_pass is not set'"
+        else
+            echo "nop"
+        fi
+    }
+}
+
+define-command show-sql -hidden -params 1 -docstring 'show sql in output buffer' %{
+    evaluate-commands %sh{
         # determine client
         client="$kak_client"
-        if [ ! -z "$kak_opt_toolsclient" ]; then
+        if [ ! -z "$kak_opt_toolsclient" ] && printf %s "$kak_client_list" | rg -Fqw "$kak_opt_toolsclient"; then
             client="$kak_opt_toolsclient"
         fi
 
         # open in client
-        echo "eval -client '$client' 'edit! -fifo ${output} *sqlout*
+        echo "eval -client '$client' 'edit! -fifo $1 *sqlout*
             set-option buffer filetype sqlout
-            hook buffer BufClose .* %{ nop %sh{ rm -r $(dirname ${output})} }'" \
+            hook buffer BufClose .* %{ nop %sh{ rm -r $(dirname $1)} }'" \
             | kak -p "${kak_session}"
-    } > /dev/null 2>&1 < /dev/null & }
+    }
 }
 
 declare-user-mode sql
