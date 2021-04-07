@@ -101,51 +101,69 @@ define-command swap-insert-side %{
 map global insert <a-[> '<esc>: swap-insert-side<ret>'
 
 # sql
-# TODO: use sql_db
 declare-option str sql_db ''
-declare-option str sql_cmd ''
-define-command sql-exec-curr-selection -docstring 'executes current selection as an SQL script' %{
+declare-option str sql_user ''
+declare-option str sql_pass ''
+declare-option str sql_selection_cmd ''
+declare-option str sql_file_cmd ''
+
+define-command sql-exec-selection -docstring 'execute selection as sql' %{
     nop %sh{ {
-        if [ -z "$kak_opt_sql_cmd" ]; then
-            echo "eval -client '$kak_client' fail 'sql_cmd is not set'" | kak -p "${kak_session}"
+        if [ -z "$kak_opt_sql_selection_cmd" ]; then
+            echo "eval -client '$kak_client' fail 'sql_selection_cmd is not set'" | kak -p "${kak_session}"
             exit 1
         fi
-        # I hate ****ing quotes
+        # Create a temporary fifo for communication
+        output=$(mktemp -d -t kak-sql-XXXXXXXX)/fifo
+        cmd=$(printf %s "$kak_opt_sql_selection_cmd" | sd '\{sql_db\}' "$kak_opt_sql_db" | sd '\{sql_user\}' "$kak_opt_sql_user" | sd '\{sql_pass\}' "$kak_opt_sql_pass")
+        mkfifo ${output}
+
+        # parse selection
         selection=$(printf %s "$kak_selection" | sd "'" "'\\\''")
-        output=$(eval "printf %s '$selection' | $kak_opt_sql_cmd 2>&1")
-        # TODO: fix this
-        output=$(printf %s "$output" | sd "'" '"')
+
+        # run command detached from the shell
+        { eval "printf %s '$selection' | $cmd" > ${output}; } > /dev/null 2>&1 < /dev/null &
+
+        # determine client
         client="$kak_client"
         if [ ! -z "$kak_opt_toolsclient" ]; then
             client="$kak_opt_toolsclient"
         fi
-        echo "eval -client '$client' -verbatim show-sql '$output'" | kak -p "${kak_session}"
+
+        # open in client
+        echo "eval -client '$client' 'edit! -fifo ${output} *sqlout*
+            set-option buffer filetype sqlout
+            hook buffer BufClose .* %{ nop %sh{ rm -r $(dirname ${output})} }'" \
+            | kak -p "${kak_session}"
     } > /dev/null 2>&1 < /dev/null & }
 }
 
-declare-option str sql_buffer_cmd ''
-define-command sql-exec-curr-file -docstring 'executes current file as SQL script' %{
+define-command sql-exec-file -docstring 'execute file as sql' %{
     nop %sh{ {
-        if [ -z "$kak_opt_sql_buffer_cmd" ]; then
-            echo "eval -client '$kak_client' fail 'sql_buffer_cmd is not set'" | kak -p "${kak_session}"
+        if [ -z "$kak_opt_sql_file_cmd" ]; then
+            echo "eval -client '$kak_client' fail 'sql_file_cmd is not set'" | kak -p "${kak_session}"
             exit 1
         fi
-        output=$(eval "printf %s '$kak_buffile' | $kak_opt_sql_buffer_cmd 2>&1")
-        # TODO: fix this
-        output=$(printf %s "$output" | sd "'" '"')
+        # Create a temporary fifo for communication
+        output=$(mktemp -d -t kak-sql-XXXXXXXX)/fifo
+        cmd=$(printf %s "$kak_opt_sql_file_cmd" | sd '\{sql_db\}' "$kak_opt_sql_db" | sd '\{sql_user\}' "$kak_opt_sql_user" | sd '\{sql_pass\}' "$kak_opt_sql_pass")
+        mkfifo ${output}
+
+        # run command detached from the shell
+        { eval "printf %s '$kak_buffile' | $cmd" > ${output}; } > /dev/null 2>&1 < /dev/null &
+
+        # determine client
         client="$kak_client"
         if [ ! -z "$kak_opt_toolsclient" ]; then
             client="$kak_opt_toolsclient"
         fi
-        echo "eval -client '$client' -verbatim show-sql '$output'" | kak -p "${kak_session}"
-    } > /dev/null 2>&1 < /dev/null & }
-}
 
-define-command show-sql -hidden -params 1 -docstring 'display sql output' %{
-    edit! -scratch *sqlout*
-    set-option buffer filetype sqlout
-    set-register '"' %arg{1}
-    execute-keys Pgg
+        # open in client
+        echo "eval -client '$client' 'edit! -fifo ${output} *sqlout*
+            set-option buffer filetype sqlout
+            hook buffer BufClose .* %{ nop %sh{ rm -r $(dirname ${output})} }'" \
+            | kak -p "${kak_session}"
+    } > /dev/null 2>&1 < /dev/null & }
 }
 
 declare-user-mode sql
@@ -156,8 +174,8 @@ hook global WinSetOption filetype=sql %{
     set-option window comment_line '--'
 }
 
-map global sql s ':sql-exec-curr-selection<ret>' -docstring 'execute current selection'
-map global sql f ':sql-exec-curr-file<ret>' -docstring 'execute current file'
+map global sql s ':sql-exec-selection<ret>' -docstring 'execute current selection'
+map global sql f ':sql-exec-file<ret>' -docstring 'execute current file'
 
 #───────────────────────────────────#
 #             filetypes             #
