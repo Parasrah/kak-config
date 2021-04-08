@@ -35,7 +35,6 @@ sd:: faster sed replacement
 dirname:: used to extract directory name from path
 editorconfig-core-c:: used to load editorconfig settings
 bc:: math
-httpie:: curl replacement
 emmet-cli:: emmet cli wrapper
 kitty:: terminal emulator
 nnn:: terminal file manager

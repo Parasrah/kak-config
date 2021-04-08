@@ -1,5 +1,5 @@
 #───────────────────────────────────#
-#               style               #
+#              @style               #
 #───────────────────────────────────#
 
 colorscheme gruvbox
@@ -13,7 +13,7 @@ hook global WinCreate ^[^*]+$ %{ add-highlighter window/ number-lines -hlcursor 
 hook global RegisterModified '/' %{ add-highlighter -override global/search regex "%reg{/}" 0:+b }
 
 #───────────────────────────────────#
-#               system              #
+#              @system              #
 #───────────────────────────────────#
 
 try %{
@@ -25,7 +25,7 @@ try %{
 }
 
 #───────────────────────────────────#
-#              options              #
+#             @options              #
 #───────────────────────────────────#
 
 set-option global startup_info_version 20200901
@@ -33,7 +33,7 @@ set-option global ui_options 'ncurses_assistant=cat' 'ncurses_set_title=false'
 set-option global path '%/' './' '/usr/include'
 
 #───────────────────────────────────#
-#               misc                #
+#              @misc                #
 #───────────────────────────────────#
 
 # aliases
@@ -100,7 +100,10 @@ define-command swap-insert-side %{
 
 map global insert <a-[> '<esc>: swap-insert-side<ret>'
 
-# sql
+#───────────────────────────────────#
+#               @sql                #
+#───────────────────────────────────#
+
 declare-option str sql_db ''
 declare-option str sql_user ''
 declare-option str sql_pass ''
@@ -176,17 +179,11 @@ define-command show-sql -hidden -params 1 -docstring 'show sql in output buffer'
 
 declare-user-mode sql
 
-hook global WinSetOption filetype=sql %{
-    map window user s ':enter-user-mode sql<ret>' -docstring 'sql mode'
-    set-option window formatcmd "pg_format -"
-    set-option window comment_line '--'
-}
-
 map global sql s ':sql-exec-selection<ret>' -docstring 'execute current selection'
 map global sql f ':sql-exec-file<ret>' -docstring 'execute current file'
 
 #───────────────────────────────────#
-#             filetypes             #
+#            @filetypes             #
 #───────────────────────────────────#
 
 hook global BufCreate .*kitty[.]conf %{
@@ -197,13 +194,14 @@ hook global BufCreate .*/kak/snippets/.* %{
     set-option buffer filetype snippet
 }
 
-provide-module -override git-commit %{
-    add-highlighter shared/git-commit regions
-    add-highlighter shared/git-commit/diff region '^diff --git' '^(?=diff --git)' ref diff # highlight potential diffs from the -v option
-    # TODO: contribute upstream (lines starting with horizontal whitespace are not treated as comments by git)
-    add-highlighter shared/git-commit/comments region '^#' '$' group
-    add-highlighter shared/git-commit/comments/ fill comment
-    add-highlighter shared/git-commit/comments/ regex "\b(?:(modified)|(deleted)|(new file)|(renamed|copied)):([^\n]*)$" 1:yellow 2:red 3:green 4:blue 5:magenta
+hook global BufCreate .*[.]less %{
+    set-option buffer filetype css
+}
+
+hook global WinSetOption filetype=sql %{
+    map window user s ':enter-user-mode sql<ret>' -docstring 'sql mode'
+    set-option window formatcmd "pg_format -"
+    set-option window comment_line '--'
 }
 
 hook global WinSetOption filetype=json %{
@@ -237,7 +235,7 @@ hook global WinSetOption filetype=(typescript|typescriptreact) %{
 }
 
 hook global WinSetOption filetype=(typescript|typescriptreact|javascript|javascriptreact) %{
-    set-option window lintcmd 'run() { cat "$1" | npx eslint -f ~/.npm-global/lib/node_modules/eslint-formatter-kakoune/index.js --stdin --stdin-filename "$kak_buffile";} && run '
+    set-option window lintcmd 'run() { cat "$1" | npx eslint -f ~/.npm-global/lib/node_modules/eslint-formatter-kakoune/index.js --stdin --stdin-filename "$kak_buffile";} && run'
     set-option window formatcmd "npx prettier --stdin-filepath %val{buffile}"
     hook window BufWritePost .* %{
         lint
@@ -252,14 +250,11 @@ define-command filetype -params 1 -docstring 'Set the current filetype' %{
     set-option window filetype %arg{1}
 }
 
-hook global BufCreate .*[.]less %{
-    set-option buffer filetype css
-}
-
 define-command json %{ filetype 'json' }
+define-command sql %{ filetype 'sql' }
 
 #───────────────────────────────────#
-#            text objects           #
+#           @text objects           #
 #───────────────────────────────────#
 
 # TODO: finish command to select indentation without travelling past a newline after matching indentation
@@ -269,7 +264,7 @@ define-command -hidden text-object-indent %{
 }
 
 #───────────────────────────────────#
-#                git                #
+#               @git                #
 #───────────────────────────────────#
 
 map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
@@ -306,7 +301,7 @@ map global git-show s ' :git show %val{selection}<ret>' -docstring 'show current
 map global git-show l " :git-show-line-commit<ret>" -docstring 'show line commit'
 
 #───────────────────────────────────#
-#                yank               #
+#               @yank               #
 #───────────────────────────────────#
 
 define-command yank-line-commit -params 1 -docstring 'yank commit hash for current line' %{
@@ -325,7 +320,7 @@ map global yank g ' :yank-line-commit "<ret>' -docstring 'yank commit for curren
 define-command clean-whitespace %{ execute-keys -draft '<percent>s^<space><plus>$<ret>d' }
 
 #───────────────────────────────────#
-#               ide                 #
+#              @ide                 #
 #───────────────────────────────────#
 
 map global user h ':grep-previous-match<ret>' -docstring 'Jump to the previous grep match'
@@ -356,7 +351,7 @@ define-command ide %{
 }
 
 #───────────────────────────────────#
-#            highlight              #
+#           @highlight              #
 #───────────────────────────────────#
 # https://github.com/mawww/config/blob/master/kakrc
 
@@ -374,7 +369,7 @@ hook global NormalIdle .* %{
 add-highlighter global/ dynregex '%opt{curword}' 0:CurWord
 
 #───────────────────────────────────#
-#              plugins              #
+#             @plugins              #
 #───────────────────────────────────#
 
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
