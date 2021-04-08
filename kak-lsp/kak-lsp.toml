@@ -114,6 +114,9 @@ roots = ["Cargo.toml"]
 command = "sh"
 args = ["-c", "if command -v rustup >/dev/null; then $(rustup which rust-analyzer); else rust-analyzer; fi"]
 
+[language.rust.initialization_options]
+diagnostics.disabled = ["unresolved-macro-call"]
+
 [language.python]
 filetypes = ["python"]
 roots = ["requirements.txt", "setup.py", ".git", ".hg"]
