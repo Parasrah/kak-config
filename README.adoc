@@ -41,6 +41,17 @@ nnn:: terminal file manager
 
 == Future Features
 
+=== Fallback window management
+
+Would like kakoune to fallback to using kitty for windowing. This would be
+useful for environments like chromebooks or remote machines where i3 isn't
+available, without impacting my developer experience w/ i3 available
+
+* [ ] create a kitty config that uses the same keys as my i3 config
+* [ ] create kitty versions of i3 commands (i3-new-down, etc)
+* [ ] create aliases that point to i3 commands if i3wm is running, else kitty
+* [ ] use said aliases everywhere in config
+
 === "IDE" experience
 
 It should be possible to:

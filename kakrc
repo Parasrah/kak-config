@@ -25,6 +25,78 @@ try %{
 }
 
 #───────────────────────────────────#
+#             @connect              #
+#───────────────────────────────────#
+
+try %{
+    evaluate-commands %sh{
+        if command -v kcr >/dev/null; then
+            echo 'nop'
+        else
+            echo 'echo -debug "kcr binary missing"'
+            echo 'fail'
+        fi
+    }
+
+    hook global ModuleLoaded kitty %{
+        alias global popup kitty-terminal
+    }
+
+    evaluate-commands %sh{ kcr init kakoune }
+
+    map global user <ret> ' :connect-terminal<ret>' -docstring 'open terminal'
+
+    declare-user-mode fzf
+
+    map global normal <c-p> ':enter-user-mode fzf<ret>' -docstring 'fuzzy finder mode'
+    map global fzf f ': + kcr-fzf-files<ret>' -docstring 'Open files'
+    map global fzf b ': + kcr-fzf-buffers<ret>' -docstring 'Open buffers'
+    map global fzf g ': + kcr-fzf-grep<ret>' -docstring 'Grep files'
+} catch %{
+    echo -debug 'failed to initialize kakoune.cr'
+}
+
+#───────────────────────────────────#
+#          @window manager          #
+#───────────────────────────────────#
+
+define-command setup-i3 -hidden %{
+    require-module i3wm
+    map global user w ': i3-mode<ret>' -docstring 'i3 mode'
+    alias global new i3-new
+    hook -group i3-hooks global KakBegin .* %{
+        define-command -hidden set-i3-terminal-alias %{
+            alias global terminal i3-terminal-b
+            alias global terminal-l i3-terminal-l
+            alias global terminal-r i3-terminal-r
+            alias global terminal-b i3-terminal-b
+            alias global terminal-t i3-terminal-t
+        }
+        alias global set-terminal-alias set-i3-terminal-alias
+
+
+        set-terminal-alias
+    }
+}
+
+define-command setup-kitty -hidden %{
+    map global user w ': kitty-mode<ret>' -docstring 'kitty mode'
+    alias global new kitty-new
+    hook -group kitty-hooks global KakBegin .* %{
+        define-command -hidden set-kitty-terminal-alias %{
+            alias global terminal kitty-terminal-b
+            alias global terminal-l kitty-terminal-l
+            alias global terminal-r kitty-terminal-r
+            alias global terminal-b kitty-terminal-b
+            alias global terminal-t kitty-terminal-t
+        }
+        alias global set-terminal-alias set-kitty-terminal-alias
+
+        set-terminal-alias
+    }
+}
+
+#───────────────────────────────────#
 #             @options              #
 #───────────────────────────────────#
 
@@ -347,7 +419,7 @@ define-command ide %{
 
     # alias global terminal i3-terminal-l
     # nnn
-    # set-i3-terminal-alias
+    # set-terminal-alias
 }
 
 #───────────────────────────────────#
@@ -435,24 +507,6 @@ plug "kak-lsp/kak-lsp" do %{
     }
 }
 
-plug "andreyorst/fzf.kak" config %{
-    map global normal <c-p> ': fzf-mode<ret>'
-} subset %{
-    fzf.kak
-    fzf-file.kak
-    fzf-buffer.kak
-    fzf-search.kak
-    fzf-cd.kak
-    fzf-grep.kak
-    fzf-project.kak
-} defer "fzf" %{
-    set-option global fzf_file_command 'rg --files --hidden -g "!.git" -g "!node_modules"'
-    set-option global fzf_grep_command "rg --hidden --smart-case --line-number --no-column --no-heading --color=never ''"
-    set-option global fzf_terminal_command 'kitty-terminal kak -c %val{session} -e "%arg{@}"'
-    set-option global fzf_window_map 'ctrl-t'
-    set-option global fzf_preview true
-}
-
 plug "andreyorst/smarttab.kak" defer smarttab %{
 } config %{
     hook global WinSetOption filetype=(?!makefile)(?!snippet).* %{
@@ -470,18 +524,8 @@ plug "eraserhd/kak-ansi" do %{
     make
 }
 
-plug "alexherbo2/prelude.kak"
-
-plug "alexherbo2/terminal-mode.kak"
-
-plug "alexherbo2/connect.kak" defer connect %{} config %{
-    define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
-        connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
-    }
-
-    map global user <ret> ' :connect-terminal<ret>' -docstring 'open terminal'
-
-    alias global nnn nnn-persistent
+plug "alexherbo2/auto-pairs.kak" defer auto-pairs %{
+    auto-pairs-enable
 } demand
 
 plug "alexherbo2/replace-mode.kak" commit "a569d3df8311a0447e65348a7d48c2dea5415df0" config %{
@@ -588,13 +632,11 @@ plug "Parasrah/hestia.kak" defer hestia %{
 } demand
 
 plug "Parasrah/i3.kak" config %{
-    map global user w ': i3-mode<ret>' -docstring 'i3 mode'
-} defer i3wm %{
-    alias global new i3-new
-    hook -group i3-hooks global KakBegin .* %{
-        define-command -hidden set-i3-terminal-alias %{
-            alias global terminal i3-terminal-b
-        }
-        set-i3-terminal-alias
+    evaluate-commands %sh{
+        if pgrep -x "i3" >/dev/null; then
+            echo 'setup-i3'
+        else
+            echo 'nop'
+        fi
     }
-} demand
+}
