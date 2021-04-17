@@ -1,5 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Kakoune
-Exec=kak-desktop %F
-Icon=kakoune.svg

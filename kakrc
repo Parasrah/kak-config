@@ -70,7 +70,8 @@ define-command setup-i3 -hidden %{
             alias global terminal-l i3-terminal-l
             alias global terminal-r i3-terminal-r
             alias global terminal-b i3-terminal-b
-            alias global terminal-t i3-terminal-t
+            # TODO: implement this
+            # alias global terminal-t i3-terminal-t
         }
         alias global set-terminal-alias set-i3-terminal-alias
 
@@ -271,7 +272,7 @@ hook global BufCreate .*[.]less %{
 }
 
 hook global WinSetOption filetype=sql %{
-    map window user s ':enter-user-mode sql<ret>' -docstring 'sql mode'
+    map window user s ': enter-user-mode sql<ret>' -docstring 'sql mode'
     set-option window formatcmd "pg_format -"
     set-option window comment_line '--'
 }
@@ -339,7 +340,7 @@ define-command -hidden text-object-indent %{
 #               @git                #
 #───────────────────────────────────#
 
-map global user g ':enter-user-mode git<ret>' -docstring 'git mode'
+map global user g ': enter-user-mode git<ret>' -docstring 'git mode'
 
 declare-user-mode git
 
@@ -353,12 +354,12 @@ define-command -hidden toggle-git-blame %{ evaluate-commands %sh{
     fi
 } }
 
-map global git b ' :toggle-git-blame<ret>' -docstring 'toggle blame'
-map global git i ' :git status<ret>' -docstring 'git status'
-map global git c ' :git commit<ret>' -docstring 'git commit'
-map global git d ' :git diff %val{buffile}<ret>' -docstring 'git diff (current file)'
-map global git l ' :git log -- %val{bufname}<ret>' -docstring 'git log (current file)'
-map global git s ':enter-user-mode git-show<ret>' -docstring 'git show mode'
+map global git b ': toggle-git-blame<ret>' -docstring 'toggle blame'
+map global git i ': git status<ret>' -docstring 'git status'
+map global git c ': git commit<ret>' -docstring 'git commit'
+map global git d ': git diff %val{buffile}<ret>' -docstring 'git diff (current file)'
+map global git l ': git log -- %val{bufname}<ret>' -docstring 'git log (current file)'
+map global git s ': enter-user-mode git-show<ret>' -docstring 'git show mode'
 
 declare-user-mode git-show
 
@@ -369,8 +370,8 @@ define-command git-show-line-commit %{
     }
 }
 
-map global git-show s ' :git show %val{selection}<ret>' -docstring 'show current selection'
-map global git-show l " :git-show-line-commit<ret>" -docstring 'show line commit'
+map global git-show s ': git show %val{selection}<ret>' -docstring 'show current selection'
+map global git-show l ": git-show-line-commit<ret>" -docstring 'show line commit'
 
 #───────────────────────────────────#
 #               @yank               #
@@ -381,9 +382,9 @@ define-command yank-line-commit -params 1 -docstring 'yank commit hash for curre
 }
 
 declare-user-mode yank
-map global user y ':enter-user-mode yank<ret>' -docstring 'yank mode'
-map global yank b ' :set-register %{"} %val{bufname}<ret>' -docstring 'yank bufname'
-map global yank g ' :yank-line-commit "<ret>' -docstring 'yank commit for current line'
+map global user y ': enter-user-mode yank<ret>' -docstring 'yank mode'
+map global yank b ': set-register %{"} %val{bufname}<ret>' -docstring 'yank bufname'
+map global yank g ': yank-line-commit "<ret>' -docstring 'yank commit for current line'
 
 #───────────────────────────────────#
 #             whitespace            #
@@ -395,13 +396,13 @@ define-command clean-whitespace %{ execute-keys -draft '<percent>s^<space><plus>
 #              @ide                 #
 #───────────────────────────────────#
 
-map global user h ':grep-previous-match<ret>' -docstring 'Jump to the previous grep match'
-map global user l ':grep-next-match<ret>' -docstring 'Jump to the next grep match'
-map global user H ':make-previous-error<ret>' -docstring 'Jump to the previous make error'
-map global user L ':make-next-error<ret>' -docstring 'Jump to the next make error'
+map global user h ': grep-previous-match<ret>' -docstring 'Jump to the previous grep match'
+map global user l ': grep-next-match<ret>' -docstring 'Jump to the next grep match'
+map global user H ': make-previous-error<ret>' -docstring 'Jump to the previous make error'
+map global user L ': make-next-error<ret>' -docstring 'Jump to the next make error'
 
-map global user k ':lint-previous-message<ret>' -docstring 'Jump to the previous lint message'
-map global user j ':lint-next-message<ret>' -docstring 'Jump to the next lint message'
+map global user k ': lint-previous-message<ret>' -docstring 'Jump to the previous lint message'
+map global user j ': lint-next-message<ret>' -docstring 'Jump to the next lint message'
 
 define-command ide %{
     # TODO: fix this
