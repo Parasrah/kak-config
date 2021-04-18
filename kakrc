@@ -433,6 +433,7 @@ define-command ide %{
         i3 focus right; sleep 0.1
 
         send i3-new-d ":rename-client<space>tools<ret>"; sleep 0.3
+        send set global toolsclient tools
 
         i3 move up; sleep 0.1
 
