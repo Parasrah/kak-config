@@ -26,6 +26,7 @@ Some keys I want to preserve for future use
 
 == Dependencies
 
+kcr:: kakoune cli integration
 rg:: ripgrep, a faster grep alternative
 file:: utility to determine file type
 jq:: allows parsing json
@@ -51,22 +52,3 @@ available, without impacting my developer experience w/ i3 available
 * [ ] create kitty versions of i3 commands (i3-new-down, etc)
 * [ ] create aliases that point to i3 commands if i3wm is running, else kitty
 * [ ] use said aliases everywhere in config
-
-=== "IDE" experience
-
-It should be possible to:
-
-1) setup command to open nnn left, new kakoune client below (make buffer?)
-2) name original client 'main', bottom client 'tools'
-3) set 'main' as jumpclient, 'tools' as toolsclient
-
-=== Auto-Pairs
-
-Want a plugin that
-
-1) only inserts pairs when I actually want pairs to be inserted
-2) still works properly with `.` operator
-
-If coming up w/ pure `kakscript` solution to this is not sufficient,
-maybe `tree-sitter` could help (and for elixir could just use the
-languages macro system to get the AST)
