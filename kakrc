@@ -52,6 +52,12 @@ try %{
     map global fzf f ': + kcr-fzf-files<ret>' -docstring 'Open files'
     map global fzf b ': + kcr-fzf-buffers<ret>' -docstring 'Open buffers'
     map global fzf g ': + kcr-fzf-grep<ret>' -docstring 'Grep files'
+
+    define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
+        connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
+    }
+
+    alias global nnn nnn-persistent
 } catch %{
     echo -debug 'failed to initialize kakoune.cr'
 }
@@ -405,22 +411,42 @@ map global user k ': lint-previous-message<ret>' -docstring 'Jump to the previou
 map global user j ': lint-next-message<ret>' -docstring 'Jump to the next lint message'
 
 define-command ide %{
-    # TODO: fix this
+    # TODO: hacky, make this faster & more reliable
     rename-client main
     set-option global jumpclient main
 
-    i3-new-down ':rename-client <space> tools<ret>'
-    set-option global toolsclient tools
+    nop %sh{ {
+        send() {
+            kcr -c "$kak_client" -s "$kak_session" send -- "$@"
+        }
 
-    nop %sh{
-        sleep 0.5
-        i3-msg focus up
-        sleep 0.5
-    }
+        i3() {
+            i3-msg -q "$@"
+        }
 
-    # alias global terminal i3-terminal-l
-    # nnn
-    # set-terminal-alias
+        send alias global terminal i3-terminal-l
+        send nnn; sleep 0.3
+        send set-terminal-alias
+
+        i3 resize set width 15ppt; sleep 0.1
+
+        i3 focus right; sleep 0.1
+
+        send i3-new-d ":rename-client<space>tools<ret>"; sleep 0.3
+
+        i3 move up; sleep 0.1
+
+        i3 resize set height 20ppt; sleep 0.1
+
+        i3 focus down; sleep 0.1
+
+        send connect-terminal; sleep 0.3
+
+        i3 resize set height 25ppt; sleep 0.1
+
+        i3 focus up
+
+    } > /dev/null 2>&1 < /dev/null & }
 }
 
 #───────────────────────────────────#
