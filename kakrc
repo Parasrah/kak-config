@@ -38,8 +38,12 @@ try %{
         fi
     }
 
-    hook global ModuleLoaded kitty %{
+    define-command -hidden set-popup-alias %{
         alias global popup kitty-terminal
+    }
+
+    hook global ModuleLoaded kitty %{
+        set-popup-alias
     }
 
     evaluate-commands %sh{ kcr init kakoune }
@@ -360,12 +364,19 @@ define-command -hidden toggle-git-blame %{ evaluate-commands %sh{
     fi
 } }
 
+define-command gitui -docstring 'open gitui as overlay on current buffer' %{
+    alias global popup kitty-overlay
+    connect-popup gitui
+    set-popup-alias
+}
+
 map global git b ': toggle-git-blame<ret>' -docstring 'toggle blame'
 map global git i ': git status<ret>' -docstring 'git status'
 map global git c ': git commit<ret>' -docstring 'git commit'
 map global git d ': git diff %val{buffile}<ret>' -docstring 'git diff (current file)'
 map global git l ': git log -- %val{bufname}<ret>' -docstring 'git log (current file)'
 map global git s ': enter-user-mode git-show<ret>' -docstring 'git show mode'
+map global git u ': gitui<ret>' -docstring 'open gitui'
 
 declare-user-mode git-show
 
