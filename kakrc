@@ -48,7 +48,7 @@ try %{
 
     evaluate-commands %sh{ kcr init kakoune }
 
-    map global user <ret> ' :connect-terminal<ret>' -docstring 'open terminal'
+    map global user <ret> ' :connect-terminal nu<ret>' -docstring 'open terminal'
 
     declare-user-mode fzf
 
@@ -422,7 +422,7 @@ map global user k ': lint-previous-message<ret>' -docstring 'Jump to the previou
 map global user j ': lint-next-message<ret>' -docstring 'Jump to the next lint message'
 
 define-command ide %{
-    # TODO: hacky, make this faster & more reliable
+    # TODO: hacky, find a way to poll, remove sleeps
     rename-client main
     set-option global jumpclient main
 
@@ -440,22 +440,18 @@ define-command ide %{
         send set-terminal-alias
 
         i3 resize set width 15ppt; sleep 0.1
-
         i3 focus right; sleep 0.1
 
         send i3-new-d ":rename-client<space>tools<ret>"; sleep 0.3
         send set global toolsclient tools
 
         i3 move up; sleep 0.1
-
         i3 resize set height 20ppt; sleep 0.1
-
         i3 focus down; sleep 0.1
 
-        send connect-terminal; sleep 0.3
+        send connect-terminal nu; sleep 0.3
 
         i3 resize set height 25ppt; sleep 0.1
-
         i3 focus up
 
     } > /dev/null 2>&1 < /dev/null & }
