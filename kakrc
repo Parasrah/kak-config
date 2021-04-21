@@ -1,4 +1,13 @@
 #───────────────────────────────────#
+#             @options              #
+#───────────────────────────────────#
+
+set-option global startup_info_version 20200901464
+
+set-option global ui_options 'terminal_assistant=cat' 'terminal_set_title=false'
+set-option global path '%/' './' '/usr/include'
+
+#───────────────────────────────────#
 #              @style               #
 #───────────────────────────────────#
 
@@ -108,16 +117,14 @@ define-command setup-kitty -hidden %{
 }
 
 #───────────────────────────────────#
-#             @options              #
-#───────────────────────────────────#
-
-set-option global startup_info_version 20200901
-set-option global ui_options 'ncurses_assistant=cat' 'ncurses_set_title=false'
-set-option global path '%/' './' '/usr/include'
-
-#───────────────────────────────────#
 #              @misc                #
 #───────────────────────────────────#
+
+# ambiguous keys
+map global insert <c-[> <esc>
+map global prompt <c-[> <esc>
+map global insert <c-h> <backspace>
+map global normal <c-i> <tab>
 
 # aliases
 alias global rg grep
@@ -148,7 +155,7 @@ map global normal '#' ':comment-line<ret>' -docstring 'comment selected lines'
 map global normal <a-#> ':comment-block<ret>' -docstring 'comment block'
 
 # select under cursor
-map global user S '<a-i>w*%s<c-r>/<ret>'
+map global user S '<a-i>w*%s<c-r>/<ret>' -docstring 'select under cursor'
 
 # wrap
 map global normal = '|fmt -w $kak_opt_autowrap_column<ret>'
@@ -156,7 +163,11 @@ map global normal = '|fmt -w $kak_opt_autowrap_column<ret>'
 # delete
 map global insert <c-l> '<del>'
 
+# whitespace
+define-command clean-whitespace %{ execute-keys -draft '<percent>s^<space><plus>$<ret>d' }
+
 # jump to left/right of selection
+# TODO: fix this for selection w/ length of 1
 define-command swap-insert-side %{
     execute-keys -with-hooks %sh{
         selection="$kak_selection_desc"
@@ -187,83 +198,86 @@ map global insert <a-[> '<esc>: swap-insert-side<ret>'
 #               @sql                #
 #───────────────────────────────────#
 
-declare-option str sql_db ''
-declare-option str sql_user ''
-declare-option str sql_pass ''
-declare-option str sql_selection_cmd ''
-declare-option str sql_file_cmd ''
+# TODO: move this into a plugin
+provide-module sql-integration %§
+    declare-option str sql_db ''
+    declare-option str sql_user ''
+    declare-option str sql_pass ''
+    declare-option str sql_selection_cmd ''
+    declare-option str sql_file_cmd ''
 
-define-command sql-exec-selection -docstring 'execute selection as sql' %{
-    sql-test-inputs 'sql_selection_cmd' %opt{sql_selection_cmd}
-    evaluate-commands %sh{
-        # Create a temporary fifo for communication
-        output=$(mktemp -d -t kak-sql-XXXXXXXX)/fifo
-        cmd=$(printf %s "$kak_opt_sql_selection_cmd" | sd '\{sql_db\}' "$kak_opt_sql_db" | sd '\{sql_user\}' "$kak_opt_sql_user" | sd '\{sql_pass\}' "$kak_opt_sql_pass")
-        mkfifo ${output}
+    define-command sql-exec-selection -docstring 'execute selection as sql' %{
+        sql-test-inputs 'sql_selection_cmd' %opt{sql_selection_cmd}
+        evaluate-commands %sh{
+            # Create a temporary fifo for communication
+            output=$(mktemp -d -t kak-sql-XXXXXXXX)/fifo
+            cmd=$(printf %s "$kak_opt_sql_selection_cmd" | sd '\{sql_db\}' "$kak_opt_sql_db" | sd '\{sql_user\}' "$kak_opt_sql_user" | sd '\{sql_pass\}' "$kak_opt_sql_pass")
+            mkfifo ${output}
 
-        # parse selection
-        selection=$(printf %s "$kak_selection" | sd "'" "'\\\''")
+            # parse selection
+            selection=$(printf %s "$kak_selection" | sd "'" "'\\\''")
 
-        # run command detached from the shell
-        { eval "printf %s '$selection' | $cmd" > ${output}; } > /dev/null 2>&1 < /dev/null &
+            # run command detached from the shell
+            { eval "printf %s '$selection' | $cmd" > ${output}; } > /dev/null 2>&1 < /dev/null &
 
-        # open in client
-        echo "show-sql '$output'"
+            # open in client
+            echo "show-sql '$output'"
+        }
     }
-}
 
-define-command sql-exec-file -docstring 'execute file as sql' %{
-    sql-test-inputs 'sql_file_cmd' %opt{sql_file_cmd}
-    evaluate-commands %sh{
-        # Create a temporary fifo for communication
-        output=$(mktemp -d -t kak-sql-XXXXXXXX)/fifo
-        cmd=$(printf %s "$kak_opt_sql_file_cmd" | sd '\{sql_db\}' "$kak_opt_sql_db" | sd '\{sql_user\}' "$kak_opt_sql_user" | sd '\{sql_pass\}' "$kak_opt_sql_pass")
-        mkfifo ${output}
+    define-command sql-exec-file -docstring 'execute file as sql' %{
+        sql-test-inputs 'sql_file_cmd' %opt{sql_file_cmd}
+        evaluate-commands %sh{
+            # Create a temporary fifo for communication
+            output=$(mktemp -d -t kak-sql-XXXXXXXX)/fifo
+            cmd=$(printf %s "$kak_opt_sql_file_cmd" | sd '\{sql_db\}' "$kak_opt_sql_db" | sd '\{sql_user\}' "$kak_opt_sql_user" | sd '\{sql_pass\}' "$kak_opt_sql_pass")
+            mkfifo ${output}
 
-        # run command detached from the shell
-        { eval "printf %s '$kak_buffile' | $cmd" > ${output}; } > /dev/null 2>&1 < /dev/null &
+            # run command detached from the shell
+            { eval "printf %s '$kak_buffile' | $cmd" > ${output}; } > /dev/null 2>&1 < /dev/null &
 
-        # open in client
-        echo "show-sql '$output'"
+            # open in client
+            echo "show-sql '$output'"
+        }
     }
-}
 
-define-command sql-test-inputs -hidden -params 2 %{
-    evaluate-commands %sh{
-        if [ -z "$2" ]; then
-            echo "fail '$1 is not set'"
-        elif [ -z "$kak_opt_sql_user" ]; then
-            echo "fail 'sql_user is not set'"
-        elif [ -z "$kak_opt_sql_db" ]; then
-            echo "fail 'sql_db is not set'"
-        elif [ -z "$kak_opt_sql_pass" ]; then
-            echo "fail 'sql_pass is not set'"
-        else
-            echo "nop"
-        fi
+    define-command sql-test-inputs -hidden -params 2 %{
+        evaluate-commands %sh{
+            if [ -z "$2" ]; then
+                echo "fail '$1 is not set'"
+            elif [ -z "$kak_opt_sql_user" ]; then
+                echo "fail 'sql_user is not set'"
+            elif [ -z "$kak_opt_sql_db" ]; then
+                echo "fail 'sql_db is not set'"
+            elif [ -z "$kak_opt_sql_pass" ]; then
+                echo "fail 'sql_pass is not set'"
+            else
+                echo "nop"
+            fi
+        }
     }
-}
 
-define-command show-sql -hidden -params 1 -docstring 'show sql in output buffer' %{
-    evaluate-commands %sh{
-        # determine client
-        client="$kak_client"
-        if [ ! -z "$kak_opt_toolsclient" ] && printf %s "$kak_client_list" | rg -Fqw "$kak_opt_toolsclient"; then
-            client="$kak_opt_toolsclient"
-        fi
+    define-command show-sql -hidden -params 1 -docstring 'show sql in output buffer' %{
+        evaluate-commands %sh{
+            # determine client
+            client="$kak_client"
+            if [ ! -z "$kak_opt_toolsclient" ] && printf %s "$kak_client_list" | rg -Fqw "$kak_opt_toolsclient"; then
+                client="$kak_opt_toolsclient"
+            fi
 
-        # open in client
-        echo "eval -client '$client' 'edit! -fifo $1 *sqlout*
-            set-option buffer filetype sqlout
-            hook buffer BufClose .* %{ nop %sh{ rm -r $(dirname $1)} }'" \
-            | kak -p "${kak_session}"
+            # open in client
+            echo "eval -client '$client' 'edit! -fifo $1 *sqlout*
+                set-option buffer filetype sqlout
+                hook buffer BufClose .* %{ nop %sh{ rm -r $(dirname $1)} }'" \
+                | kak -p "${kak_session}"
+        }
     }
-}
 
-declare-user-mode sql
+    declare-user-mode sql
 
-map global sql s ':sql-exec-selection<ret>' -docstring 'execute current selection'
-map global sql f ':sql-exec-file<ret>' -docstring 'execute current file'
+    map global sql s ':sql-exec-selection<ret>' -docstring 'execute current selection'
+    map global sql f ':sql-exec-file<ret>' -docstring 'execute current file'
+§
 
 #───────────────────────────────────#
 #            @filetypes             #
@@ -281,7 +295,18 @@ hook global BufCreate .*[.]less %{
     set-option buffer filetype css
 }
 
+hook global WinSetOption filetype=lsp-goto %{
+    alias global goto-next lsp-goto-next-match
+    alias global goto-prev lsp-goto-previous-match
+}
+
+hook global WinSetOption filetype=grep %{
+    alias global goto-next grep-next-match
+    alias global goto-prev grep-previous-match
+}
+
 hook global WinSetOption filetype=sql %{
+    require-module sql-integration
     map window user s ': enter-user-mode sql<ret>' -docstring 'sql mode'
     set-option window formatcmd "pg_format -"
     set-option window comment_line '--'
@@ -404,22 +429,16 @@ map global yank b ': set-register %{"} %val{bufname}<ret>' -docstring 'yank bufn
 map global yank g ': yank-line-commit "<ret>' -docstring 'yank commit for current line'
 
 #───────────────────────────────────#
-#             whitespace            #
-#───────────────────────────────────#
-
-define-command clean-whitespace %{ execute-keys -draft '<percent>s^<space><plus>$<ret>d' }
-
-#───────────────────────────────────#
 #              @ide                 #
 #───────────────────────────────────#
 
-map global user h ': grep-previous-match<ret>' -docstring 'Jump to the previous grep match'
-map global user l ': grep-next-match<ret>' -docstring 'Jump to the next grep match'
-map global user H ': make-previous-error<ret>' -docstring 'Jump to the previous make error'
-map global user L ': make-next-error<ret>' -docstring 'Jump to the next make error'
+map global normal <c-h> ': goto-next<ret>' -docstring 'Jump to the previous grep match'
+map global normal <c-l> ': goto-prev<ret>' -docstring 'Jump to the next grep match'
+map global normal <a-h> ': make-previous-error<ret>' -docstring 'Jump to the previous make error'
+map global normal <a-l> ': make-next-error<ret>' -docstring 'Jump to the next make error'
 
-map global user k ': lint-previous-message<ret>' -docstring 'Jump to the previous lint message'
-map global user j ': lint-next-message<ret>' -docstring 'Jump to the next lint message'
+map global normal <c-k> ': lint-previous-message<ret>' -docstring 'Jump to the previous lint message'
+map global normal <c-j> ': lint-next-message<ret>' -docstring 'Jump to the next lint message'
 
 define-command ide %{
     # TODO: hacky, find a way to poll, remove sleeps
@@ -483,6 +502,7 @@ source "%val{config}/plugins/plug.kak/rc/plug.kak"
 
 plug "andreyorst/plug.kak" noload
 
+# @lsp
 plug "kak-lsp/kak-lsp" do %{
     cargo install --locked --force --path .
 } config %{
@@ -521,14 +541,12 @@ plug "kak-lsp/kak-lsp" do %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
-        map window user ';' ':lsp-hover-info<ret>' -docstring 'hover'
-        map window user ':' ':lsp-hover-diagnostics<ret>' -docstring 'diagnostics'
+        map window normal <c-semicolon> ':lsp-hover-info<ret>' -docstring 'hover'
+        map window normal <a-semicolon> ':lsp-hover-diagnostics<ret>' -docstring 'diagnostics'
         map window user . ':lsp-code-actions<ret>' -docstring 'code actions'
         map window goto I '\:lsp-implementation<ret>' -docstring 'goto implementation'
-        map window user <a-h> ':lsp-goto-previous-match<ret>' -docstring 'LSP goto previous'
-        map window user <a-l> ':lsp-goto-next-match<ret>' -docstring 'LSP goto next'
-        map window user <a-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
-        map window user <a-j> ':lsp-find-error<ret>' -docstring 'goto next LSP error'
+        map window normal <a-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
+        map window normal <a-j> ':lsp-find-error<ret>' -docstring 'goto next LSP error'
         map window user r ':lsp-rename-prompt<ret>' -docstring 'rename'
     }
 

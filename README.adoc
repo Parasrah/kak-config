@@ -18,9 +18,6 @@ Used to document what registers I try to associate with what actions
 
 Some keys I want to preserve for future use
 
-* `<c-h,j,k,l>`, `<a-h,j,k,l>` - for when kakoune supports ambiguous keys
-** `j,k` keys for jumps inside buffer
-** `h,l` keys for jumps across buffers
 * `<c-space>` - for explicit lsp completion
 * `<c-n>` - for something with normal mode navigation forward, not backward
 

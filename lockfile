@@ -1,4 +1,5 @@
 # generated using 'ls | xargs -I {} git --git-dir=./{}/.git log -1 @ | rg ^commit' (primitive)
+# wip(nu): ls ./plugins/ | get name | path expand | path join ".git" | unlines | ^xargs -I {} git --git-dir="{}" log --pretty="format:%H" -1 @
 casing.kak bd579f04bbd17c3d8612ad0505a6641a78e239df
 clipboard.kak adfdff94e2ae03ef04d93fb6a61822198095b667
 connect.kak c5627bc033ca73f217626daa1b12dd8577c8e661
