@@ -48,7 +48,7 @@ try %{
 
     evaluate-commands %sh{ kcr init kakoune }
 
-    map global user <ret> ' :connect-terminal nu<ret>' -docstring 'open terminal'
+    map global user <ret> ' :connect-terminal<ret>' -docstring 'open terminal'
 
     declare-user-mode fzf
 
@@ -449,7 +449,7 @@ define-command ide %{
         i3 resize set height 20ppt; sleep 0.1
         i3 focus down; sleep 0.1
 
-        send connect-terminal nu; sleep 0.3
+        send connect-terminal; sleep 0.3
 
         i3 resize set height 25ppt; sleep 0.1
         i3 focus up
