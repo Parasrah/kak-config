@@ -434,11 +434,11 @@ map global yank g ': yank-line-commit "<ret>' -docstring 'yank commit for curren
 
 map global normal <c-h> ': goto-next<ret>' -docstring 'Jump to the previous grep match'
 map global normal <c-l> ': goto-prev<ret>' -docstring 'Jump to the next grep match'
-map global normal <a-h> ': make-previous-error<ret>' -docstring 'Jump to the previous make error'
-map global normal <a-l> ': make-next-error<ret>' -docstring 'Jump to the next make error'
+map global user h ': make-previous-error<ret>' -docstring 'Jump to the previous make error'
+map global user l ': make-next-error<ret>' -docstring 'Jump to the next make error'
 
-map global normal <c-k> ': lint-previous-message<ret>' -docstring 'Jump to the previous lint message'
-map global normal <c-j> ': lint-next-message<ret>' -docstring 'Jump to the next lint message'
+map global user k ': lint-previous-message<ret>' -docstring 'Jump to the previous lint message'
+map global user j ': lint-next-message<ret>' -docstring 'Jump to the next lint message'
 
 define-command ide %{
     # TODO: hacky, find a way to poll, remove sleeps
@@ -541,13 +541,13 @@ plug "kak-lsp/kak-lsp" do %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
-        map window normal <c-semicolon> ':lsp-hover-info<ret>' -docstring 'hover'
-        map window normal <a-semicolon> ':lsp-hover-diagnostics<ret>' -docstring 'diagnostics'
-        map window user . ':lsp-code-actions<ret>' -docstring 'code actions'
-        map window goto I '\:lsp-implementation<ret>' -docstring 'goto implementation'
-        map window normal <a-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
-        map window normal <a-j> ':lsp-find-error<ret>' -docstring 'goto next LSP error'
-        map window user r ':lsp-rename-prompt<ret>' -docstring 'rename'
+        map window user '<;>' ':lsp-hover-info<ret>' -docstring 'hover'
+        map window user <:> ':lsp-hover-diagnostics<ret>' -docstring 'diagnostics'
+        map window user <.> ':lsp-code-actions<ret>' -docstring 'code actions'
+        map window goto <I> '\:lsp-implementation<ret>' -docstring 'goto implementation'
+        map window normal <c-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
+        map window normal <c-j> ':lsp-find-error<ret>' -docstring 'goto next LSP error'
+        map window user <r> ':lsp-rename-prompt<ret>' -docstring 'rename'
     }
 
     hook global WinSetOption filetype=rust %{
