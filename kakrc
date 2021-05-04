@@ -577,9 +577,7 @@ plug "eraserhd/kak-ansi" do %{
     make
 }
 
-plug "alexherbo2/auto-pairs.kak" defer auto-pairs %{
-    auto-pairs-enable
-} demand
+plug "alexherbo2/search.kak"
 
 plug "alexherbo2/replace-mode.kak" commit "a569d3df8311a0447e65348a7d48c2dea5415df0" config %{
     map global user R ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
