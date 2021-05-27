@@ -62,7 +62,7 @@ try %{
     declare-user-mode fzf
 
     map global normal <c-p> ':enter-user-mode fzf<ret>' -docstring 'fuzzy finder mode'
-    map global fzf f ': + kcr-fzf-files<ret>' -docstring 'Open files'
+    map global fzf f ': + kcr-fzf-files -H --exclude ".git/*"<ret>' -docstring 'Open files'
     map global fzf b ': + kcr-fzf-buffers<ret>' -docstring 'Open buffers'
     map global fzf g ': + kcr-fzf-grep<ret>' -docstring 'Grep files'
 
@@ -152,7 +152,7 @@ map global user f ':format<ret>' -docstring 'Format'
 
 # comment line
 map global normal '#' ':comment-line<ret>' -docstring 'comment selected lines'
-map global normal <a-#> ':comment-block<ret>' -docstring 'comment block'
+map global normal <a-3> ':comment-block<ret>' -docstring 'comment block'
 
 # select under cursor
 map global user S '<a-i>w*%s<c-r>/<ret>' -docstring 'select under cursor'
@@ -293,6 +293,12 @@ hook global BufCreate .*/kak/snippets/.* %{
 
 hook global BufCreate .*[.]less %{
     set-option buffer filetype css
+}
+
+hook global WinSetOption filetype=(html|eex) %{
+    set-option buffer comment_line ''
+    set-option buffer comment_block_begin '<!--'
+    set-option buffer comment_block_end '-->'
 }
 
 hook global WinSetOption filetype=lsp-goto %{
@@ -537,7 +543,7 @@ plug "kak-lsp/kak-lsp" do %{
         set-option buffer lsp_completion_trigger %{ fail "completion disabled" }
     }
 
-    hook global WinSetOption filetype=(elm|elixir|javascript|typescript|typescriptreact|javascriptreact|python|rust) %{
+    hook global WinSetOption filetype=(elm|elixir|eex|javascript|typescript|typescriptreact|javascriptreact|python|rust) %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
