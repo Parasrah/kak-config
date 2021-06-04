@@ -123,6 +123,7 @@ define-command setup-kitty -hidden %{
 # ambiguous keys
 map global insert <c-[> <esc>
 map global prompt <c-[> <esc>
+map global menu   <c-[> <esc>
 map global insert <c-h> <backspace>
 map global normal <c-i> <tab>
 
@@ -193,6 +194,15 @@ define-command swap-insert-side %{
 }
 
 map global insert <a-[> '<esc>: swap-insert-side<ret>'
+
+define-command goto-line -params 1 -docstring 'go to specified line' %{
+    execute-keys %sh{
+        case "$@" in
+            ''|*[!0-9]*) printf %s ':fail "line target must be a positive integer"<ret>' ;;
+            *) printf %s "$@g" ;;
+        esac
+    }
+}
 
 #───────────────────────────────────#
 #               @sql                #
