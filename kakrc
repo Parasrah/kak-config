@@ -361,7 +361,7 @@ hook global WinSetOption filetype=(typescript|typescriptreact) %{
 hook global WinSetOption filetype=(typescript|typescriptreact|javascript|javascriptreact) %{
     set-option window lintcmd 'run() { cat "$1" | npx eslint -f ~/.npm-global/lib/node_modules/eslint-formatter-kakoune/index.js --stdin --stdin-filename "$kak_buffile";} && run'
     set-option window formatcmd "npx prettier --stdin-filepath %val{buffile}"
-    hook window BufWritePost .* %{
+    hook window BufWritePost -group lint-eslint .* %{
         lint
     }
 }
