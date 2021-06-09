@@ -85,7 +85,7 @@ define-command setup-i3 -hidden %{
     alias global new i3-new
     hook -group i3-hooks global KakBegin .* %{
         define-command -hidden set-i3-terminal-alias %{
-            alias global terminal i3-terminal-b
+            alias global terminal   i3-terminal-b
             alias global terminal-l i3-terminal-l
             alias global terminal-r i3-terminal-r
             alias global terminal-b i3-terminal-b
@@ -104,7 +104,7 @@ define-command setup-kitty -hidden %{
     alias global new kitty-new
     hook -group kitty-hooks global KakBegin .* %{
         define-command -hidden set-kitty-terminal-alias %{
-            alias global terminal kitty-terminal-b
+            alias global terminal   kitty-terminal-b
             alias global terminal-l kitty-terminal-l
             alias global terminal-r kitty-terminal-r
             alias global terminal-b kitty-terminal-b
@@ -122,8 +122,10 @@ define-command setup-kitty -hidden %{
 
 # ambiguous keys
 map global insert <c-[> <esc>
+map global normal <c-[> <esc>
 map global prompt <c-[> <esc>
 map global menu   <c-[> <esc>
+map global view   <c-[> <esc>
 map global insert <c-h> <backspace>
 map global normal <c-i> <tab>
 
@@ -144,25 +146,25 @@ hook global BufOpenFile .* %{ editorconfig-load }
 hook global BufNewFile .* %{ editorconfig-load }
 
 # leader
-map global normal <space> , -docstring 'leader'
-map global normal , <space> -docstring 'remove all selections except main'
-map global normal <a-,> <a-space> -docstring 'remove main selection'
+map global normal <space> ,         -docstring 'leader'
+map global normal ,       <space>   -docstring 'remove all selections except main'
+map global normal <a-,>   <a-space> -docstring 'remove main selection'
 
 # formatting
 map global user f ':format<ret>' -docstring 'Format'
 
 # comment line
-map global normal '#' ':comment-line<ret>' -docstring 'comment selected lines'
+map global normal '#'   ':comment-line<ret>'  -docstring 'comment selected lines'
 map global normal <a-3> ':comment-block<ret>' -docstring 'comment block'
 
 # select under cursor
 map global user S '<a-i>w*%s<c-r>/<ret>' -docstring 'select under cursor'
 
 # wrap
-map global normal = '|fmt -w $kak_opt_autowrap_column<ret>'
+map global normal = '|fmt -w $kak_opt_autowrap_column<ret>' -docstring 'format selection'
 
 # delete
-map global insert <c-l> '<del>'
+map global insert <c-l> '<del>' -docstring 'delete character to right'
 
 # whitespace
 define-command clean-whitespace %{ execute-keys -draft '<percent>s^<space><plus>$<ret>d' }
@@ -210,11 +212,11 @@ define-command goto-line -params 1 -docstring 'go to specified line' %{
 
 # TODO: move this into a plugin
 provide-module sql-integration %§
-    declare-option str sql_db ''
-    declare-option str sql_user ''
-    declare-option str sql_pass ''
+    declare-option str sql_db            ''
+    declare-option str sql_user          ''
+    declare-option str sql_pass          ''
     declare-option str sql_selection_cmd ''
-    declare-option str sql_file_cmd ''
+    declare-option str sql_file_cmd      ''
 
     define-command sql-exec-selection -docstring 'execute selection as sql' %{
         sql-test-inputs 'sql_selection_cmd' %opt{sql_selection_cmd}
@@ -306,9 +308,9 @@ hook global BufCreate .*[.]less %{
 }
 
 hook global WinSetOption filetype=(html|eex) %{
-    set-option buffer comment_line ''
+    set-option buffer comment_line        ''
     set-option buffer comment_block_begin '<!--'
-    set-option buffer comment_block_end '-->'
+    set-option buffer comment_block_end   '-->'
 }
 
 hook global WinSetOption filetype=lsp-goto %{
@@ -323,8 +325,10 @@ hook global WinSetOption filetype=grep %{
 
 hook global WinSetOption filetype=sql %{
     require-module sql-integration
+
     map window user s ': enter-user-mode sql<ret>' -docstring 'sql mode'
-    set-option window formatcmd "pg_format -"
+
+    set-option window formatcmd    'pg_format -'
     set-option window comment_line '--'
 }
 
@@ -334,7 +338,7 @@ hook global WinSetOption filetype=json %{
 
 hook global WinSetOption filetype=elm %{
     set-option window formatcmd 'elm-format --stdin'
-    # TODO: fix this for success
+    # TODO: fix this for when build is successful
     set-option window makecmd "elm make src/Main.elm --output=/dev/null 2>&1 | kak -n -q -f '<percent>s<minus><minus><space>[\w|<space>]<plus><minus><plus><ret><a-semicolon><semicolon>i<ret><esc>Wdf<minus><semicolon>?\w<ret>Hdgll?^\d<plus>\|<ret>GiHdi<space><esc>f|a<space><esc><semicolon>?[^<space>]<ret>Hdxd<percent><a-R>gif|<a-f><space><semicolon>r:f|<semicolon>r:<a-F><space>Lc|<space><esc>giPi<space><esc>gi'"
 }
 
@@ -375,7 +379,7 @@ define-command filetype -params 1 -docstring 'Set the current filetype' %{
 }
 
 define-command json %{ filetype 'json' }
-define-command sql %{ filetype 'sql' }
+define-command sql  %{ filetype 'sql' }
 
 #───────────────────────────────────#
 #           @text objects           #
@@ -411,13 +415,13 @@ define-command gitui -docstring 'open gitui as overlay on current buffer' %{
     set-popup-alias
 }
 
-map global git b ': toggle-git-blame<ret>' -docstring 'toggle blame'
-map global git i ': git status<ret>' -docstring 'git status'
-map global git c ': git commit<ret>' -docstring 'git commit'
-map global git d ': git diff %val{buffile}<ret>' -docstring 'git diff (current file)'
+map global git b ': toggle-git-blame<ret>'         -docstring 'toggle blame'
+map global git i ': git status<ret>'               -docstring 'git status'
+map global git c ': git commit<ret>'               -docstring 'git commit'
+map global git d ': git diff %val{buffile}<ret>'   -docstring 'git diff (current file)'
 map global git l ': git log -- %val{bufname}<ret>' -docstring 'git log (current file)'
 map global git s ': enter-user-mode git-show<ret>' -docstring 'git show mode'
-map global git u ': gitui<ret>' -docstring 'open gitui'
+map global git u ': gitui<ret>'                    -docstring 'open gitui'
 
 declare-user-mode git-show
 
@@ -440,21 +444,20 @@ define-command yank-line-commit -params 1 -docstring 'yank commit hash for curre
 }
 
 declare-user-mode yank
-map global user y ': enter-user-mode yank<ret>' -docstring 'yank mode'
+map global user y ': enter-user-mode yank<ret>'            -docstring 'yank mode'
 map global yank b ': set-register %{"} %val{bufname}<ret>' -docstring 'yank bufname'
-map global yank g ': yank-line-commit "<ret>' -docstring 'yank commit for current line'
+map global yank g ': yank-line-commit "<ret>'              -docstring 'yank commit for current line'
 
 #───────────────────────────────────#
 #              @ide                 #
 #───────────────────────────────────#
 
-map global normal <c-h> ': goto-next<ret>' -docstring 'Jump to the previous grep match'
-map global normal <c-l> ': goto-prev<ret>' -docstring 'Jump to the next grep match'
-map global user h ': make-previous-error<ret>' -docstring 'Jump to the previous make error'
-map global user l ': make-next-error<ret>' -docstring 'Jump to the next make error'
-
-map global user k ': lint-previous-message<ret>' -docstring 'Jump to the previous lint message'
-map global user j ': lint-next-message<ret>' -docstring 'Jump to the next lint message'
+map global normal <c-h> ': goto-next<ret>'             -docstring 'Jump to the previous grep match'
+map global normal <c-l> ': goto-prev<ret>'             -docstring 'Jump to the next grep match'
+map global user   h     ': make-previous-error<ret>'   -docstring 'Jump to the previous make error'
+map global user   l     ': make-next-error<ret>'       -docstring 'Jump to the next make error'
+map global user   k     ': lint-previous-message<ret>' -docstring 'Jump to the previous lint message'
+map global user   j     ': lint-next-message<ret>'     -docstring 'Jump to the next lint message'
 
 define-command ide %{
     # TODO: hacky, find a way to poll, remove sleeps
@@ -557,17 +560,18 @@ plug "kak-lsp/kak-lsp" do %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
-        map window user '<;>' ':lsp-hover-info<ret>' -docstring 'hover'
-        map window user <:> ':lsp-hover-diagnostics<ret>' -docstring 'diagnostics'
-        map window user <.> ':lsp-code-actions<ret>' -docstring 'code actions'
-        map window goto <I> '\:lsp-implementation<ret>' -docstring 'goto implementation'
+
+        map window user   '<;>' ':lsp-hover-info<ret>'            -docstring 'hover'
+        map window user   <:>   ':lsp-hover-diagnostics<ret>'     -docstring 'diagnostics'
+        map window user   <.>   ':lsp-code-actions<ret>'          -docstring 'code actions'
+        map window goto   <I>   '\:lsp-implementation<ret>'       -docstring 'goto implementation'
         map window normal <c-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
-        map window normal <c-j> ':lsp-find-error<ret>' -docstring 'goto next LSP error'
-        map window user <r> ':lsp-rename-prompt<ret>' -docstring 'rename'
+        map window normal <c-j> ':lsp-find-error<ret>'            -docstring 'goto next LSP error'
+        map window user   <r>   ':lsp-rename-prompt<ret>'         -docstring 'rename'
     }
 
     hook global WinSetOption filetype=rust %{
-        hook window -group rust-inlay-hints BufReload .* rust-analyzer-inlay-hints
+        hook window -group rust-inlay-hints BufReload  .* rust-analyzer-inlay-hints
         hook window -group rust-inlay-hints NormalIdle .* rust-analyzer-inlay-hints
         hook window -group rust-inlay-hints InsertIdle .* rust-analyzer-inlay-hints
         hook -once -always window WinSetOption filetype=.* %{
