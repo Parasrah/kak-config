@@ -305,6 +305,30 @@ provide-module sql-integration %§
 #            @filetypes             #
 #───────────────────────────────────#
 
+# TODO: move into vue filetype
+hook global BufCreate .*\.vue %{
+    set-option buffer filetype vue
+}
+
+hook global WinSetOption filetype=vue %{
+    require-module html
+
+    hook window ModeChange pop:insert:.* -group "%val{hook_param_capture_1}-trim-indent"  html-trim-indent
+    hook window InsertChar '>' -group "%val{hook_param_capture_1}-indent" html-indent-on-greater-than
+    hook window InsertChar \n -group "%val{hook_param_capture_1}-indent" html-indent-on-new-line
+
+    hook -once -always window WinSetOption "filetype=.*" "
+        remove-hooks window ""%val{hook_param_capture_1}-.+""
+    "
+}
+
+hook -group vue-highlight global WinSetOption filetype=vue %{
+    add-highlighter "window/vue" ref html
+    hook -once -always window WinSetOption "filetype=.*" "
+        remove-highlighter ""window/vue""
+    "
+}
+
 hook global BufCreate .*kitty[.]conf %{
     set-option buffer filetype ini
 }
@@ -565,6 +589,11 @@ plug "kak-lsp/kak-lsp" do %{
     hook global WinSetOption lsp_language=elm %{
         # TODO: remove after https://github.com/ul/kak-lsp/issues/40 resolved
         set-option buffer lsp_completion_fragment_start %{execute-keys <esc><a-h>s\$?[\w.]+.\z<ret>}
+        set-option buffer lsp_completion_trigger %{ fail "completion disabled" }
+    }
+
+    hook global WinSetOption lsp_language=vue %{
+        # TODO: remove after https://github.com/ul/kak-lsp/issues/40 resolved
         set-option buffer lsp_completion_trigger %{ fail "completion disabled" }
     }
 
