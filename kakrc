@@ -122,6 +122,7 @@ define-command setup-kitty -hidden %{
 
 # ambiguous keys
 map global insert <c-[> <esc> -docstring 'cancel'
+map global normal <c-[> <esc> -docstring 'cancel'
 map global prompt <c-[> <esc> -docstring 'cancel'
 map global menu   <c-[> <esc> -docstring 'cancel'
 map global view   <c-[> <esc> -docstring 'cancel'
@@ -597,6 +598,16 @@ plug "kak-lsp/kak-lsp" do %{
         set-option buffer lsp_completion_trigger %{ fail "completion disabled" }
     }
 
+    define-command init-semantic-tokens %{
+        hook window -group semantic-tokens BufReload .* lsp-semantic-tokens
+        hook window -group semantic-tokens NormalIdle .* lsp-semantic-tokens
+        hook window -group semantic-tokens InsertIdle .* lsp-semantic-tokens
+
+        hook -once -always window WinSetOption filetype=.* %{
+            remove-hooks window semantic-tokens
+        }
+    }
+
     define-command init-lsp-lang %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
@@ -608,7 +619,7 @@ plug "kak-lsp/kak-lsp" do %{
 
         map window normal <'>   ':lsp-hover-info<ret>'            -docstring 'hover'
         map window normal <a-'> ':lsp-hover-diagnostics<ret>'     -docstring 'diagnostics'
-        map window normal <.>   ':lsp-code-actions<ret>'          -docstring 'code actions'
+        map window normal <c-.> ':lsp-code-actions<ret>'          -docstring 'code actions'
         map window normal <c-r> ':lsp-rename-prompt<ret>'         -docstring 'rename'
         map window normal <c-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
         map window normal <c-j> ':lsp-find-error<ret>'            -docstring 'goto next LSP error'
@@ -616,6 +627,10 @@ plug "kak-lsp/kak-lsp" do %{
 
     hook global WinSetOption filetype=(elm|elixir|eex|javascript|typescript|typescriptreact|javascriptreact|python|rust|vue) %{
         init-lsp-lang
+    }
+
+    hook global WinSetOption filetype=(vue) %{
+        init-semantic-tokens
     }
 
     hook global WinSetOption filetype=rust %{
