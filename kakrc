@@ -121,16 +121,26 @@ define-command setup-kitty -hidden %{
 #───────────────────────────────────#
 
 # ambiguous keys
-map global insert <c-[> <esc>
-map global normal <c-[> <esc>
-map global prompt <c-[> <esc>
-map global menu   <c-[> <esc>
-map global view   <c-[> <esc>
+map global insert <c-[> <esc> -docstring 'cancel'
+map global prompt <c-[> <esc> -docstring 'cancel'
+map global menu   <c-[> <esc> -docstring 'cancel'
+map global view   <c-[> <esc> -docstring 'cancel'
+
+map global insert <c-m> <ret> -docstring 'goto next line'
+map global normal <c-m> <ret> -docstring 'submit'
+map global prompt <c-m> <ret> -docstring 'submit'
+map global menu   <c-m> <ret> -docstring 'submit'
+map global view   <c-m> <ret> -docstring 'submit'
+
 map global insert <c-h> <backspace>
 map global normal <c-i> <tab>
 
-# aliases
-alias global rg grep
+# grep
+define-command rg -params 1.. -file-completion -docstring '' %{
+    alias global goto-next grep-next-match
+    alias global goto-prev grep-previous-match
+    grep %arg{@}
+}
 
 # restart
 define-command restart -params 0..1 -file-completion -docstring 'restart instance of kakoune' %{
@@ -311,16 +321,6 @@ hook global WinSetOption filetype=(html|eex) %{
     set-option buffer comment_line        ''
     set-option buffer comment_block_begin '<!--'
     set-option buffer comment_block_end   '-->'
-}
-
-hook global WinSetOption filetype=lsp-goto %{
-    alias global goto-next lsp-goto-next-match
-    alias global goto-prev lsp-goto-previous-match
-}
-
-hook global WinSetOption filetype=grep %{
-    alias global goto-next grep-next-match
-    alias global goto-prev grep-previous-match
 }
 
 hook global WinSetOption filetype=sql %{
@@ -547,6 +547,18 @@ plug "kak-lsp/kak-lsp" do %{
         lsp-start
     }
 
+    define-command custom-lsp-definition -hidden %{
+        alias global goto-next lsp-goto-next-match
+        alias global goto-prev lsp-goto-previous-match
+        lsp-definition
+    }
+
+    define-command custom-lsp-references -hidden %{
+        alias global goto-next lsp-goto-next-match
+        alias global goto-prev lsp-goto-previous-match
+        lsp-references
+    }
+
     # TODO: would be nice to have <c-space> trigger explicit LSP completion
     # currently kak-lsp does not seem to add entry to <c-x> menu in insert mode
 
@@ -561,13 +573,16 @@ plug "kak-lsp/kak-lsp" do %{
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
 
-        map window user   '<;>' ':lsp-hover-info<ret>'            -docstring 'hover'
-        map window user   <:>   ':lsp-hover-diagnostics<ret>'     -docstring 'diagnostics'
-        map window user   <.>   ':lsp-code-actions<ret>'          -docstring 'code actions'
+        map window goto   <d>   '\:custom-lsp-definition<ret>'     -docstring 'definition'
+        map window goto   <r>   '\:custom-lsp-references<ret>'     -docstring 'references'
         map window goto   <I>   '\:lsp-implementation<ret>'       -docstring 'goto implementation'
+
+        map window normal <'>   ':lsp-hover-info<ret>'            -docstring 'hover'
+        map window normal <a-'> ':lsp-hover-diagnostics<ret>'     -docstring 'diagnostics'
+        map window normal <.>   ':lsp-code-actions<ret>'          -docstring 'code actions'
+        map window normal <c-r> ':lsp-rename-prompt<ret>'         -docstring 'rename'
         map window normal <c-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
         map window normal <c-j> ':lsp-find-error<ret>'            -docstring 'goto next LSP error'
-        map window user   <r>   ':lsp-rename-prompt<ret>'         -docstring 'rename'
     }
 
     hook global WinSetOption filetype=rust %{
