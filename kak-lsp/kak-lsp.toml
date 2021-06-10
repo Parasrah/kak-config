@@ -72,6 +72,11 @@ args = ["--stdio"]
 [language.tsx.initialization_options]
 formatTool = "prettier"
 
+[language.vue]
+filetypes = ["vue"]
+roots = ["package.json"]
+command = "vls"
+
 [language.javascript]
 filetypes = ["javascript"]
 roots = ["package.json"]

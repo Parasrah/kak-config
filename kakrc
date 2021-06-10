@@ -568,7 +568,7 @@ plug "kak-lsp/kak-lsp" do %{
         set-option buffer lsp_completion_trigger %{ fail "completion disabled" }
     }
 
-    hook global WinSetOption filetype=(elm|elixir|eex|javascript|typescript|typescriptreact|javascriptreact|python|rust) %{
+    define-command init-lsp-lang %{
         echo -debug "initializing lsp for window"
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
@@ -583,6 +583,10 @@ plug "kak-lsp/kak-lsp" do %{
         map window normal <c-r> ':lsp-rename-prompt<ret>'         -docstring 'rename'
         map window normal <c-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
         map window normal <c-j> ':lsp-find-error<ret>'            -docstring 'goto next LSP error'
+    }
+
+    hook global WinSetOption filetype=(elm|elixir|eex|javascript|typescript|typescriptreact|javascriptreact|python|rust|vue) %{
+        init-lsp-lang
     }
 
     hook global WinSetOption filetype=rust %{
