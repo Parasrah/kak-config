@@ -27,7 +27,7 @@ hook global RegisterModified '/' %{ add-highlighter -override global/search rege
 
 try %{
     require-module x11
-    set-option global grepcmd 'rg --follow --vimgrep'
+    set-option global grepcmd 'rg --follow --vimgrep --engine=auto'
 } catch %{
     echo -debug "failed to load system modules, please run the following:"
     echo -debug "mkdir -p %val{config}/autoload && ln -s %val{runtime}/autoload %val{config}/autoload/sys"
@@ -217,130 +217,43 @@ define-command goto-line -params 1 -docstring 'go to specified line' %{
     }
 }
 
-#───────────────────────────────────#
-#               @sql                #
-#───────────────────────────────────#
-
-# TODO: move this into a plugin
-provide-module sql-integration %§
-    declare-option str sql_db            ''
-    declare-option str sql_user          ''
-    declare-option str sql_pass          ''
-    declare-option str sql_selection_cmd ''
-    declare-option str sql_file_cmd      ''
-
-    define-command sql-exec-selection -docstring 'execute selection as sql' %{
-        sql-test-inputs 'sql_selection_cmd' %opt{sql_selection_cmd}
-        evaluate-commands %sh{
-            # Create a temporary fifo for communication
-            output=$(mktemp -d -t kak-sql-XXXXXXXX)/fifo
-            cmd=$(printf %s "$kak_opt_sql_selection_cmd" | sd '\{sql_db\}' "$kak_opt_sql_db" | sd '\{sql_user\}' "$kak_opt_sql_user" | sd '\{sql_pass\}' "$kak_opt_sql_pass")
-            mkfifo ${output}
-
-            # parse selection
-            selection=$(printf %s "$kak_selection" | sd "'" "'\\\''")
-
-            # run command detached from the shell
-            { eval "printf %s '$selection' | $cmd" > ${output}; } > /dev/null 2>&1 < /dev/null &
-
-            # open in client
-            echo "show-sql '$output'"
+define-command goto-column -params 1 -docstring 'go to specified character on line' %{
+    execute-keys %sh{
+        build_keys () {
+            position="$@"
+            position="$(echo "${position}-1" | bc)"
+            printf %s "gh${position}l"
         }
+
+        case "$@" in
+            ''|*[!0-9]*) printf %s ':fail "line target must be a positive integer"<ret>' ;;
+            *) build_keys "$@" ;;
+        esac
     }
+}
 
-    define-command sql-exec-file -docstring 'execute file as sql' %{
-        sql-test-inputs 'sql_file_cmd' %opt{sql_file_cmd}
-        evaluate-commands %sh{
-            # Create a temporary fifo for communication
-            output=$(mktemp -d -t kak-sql-XXXXXXXX)/fifo
-            cmd=$(printf %s "$kak_opt_sql_file_cmd" | sd '\{sql_db\}' "$kak_opt_sql_db" | sd '\{sql_user\}' "$kak_opt_sql_user" | sd '\{sql_pass\}' "$kak_opt_sql_pass")
-            mkfifo ${output}
+define-command goto-file -params 0 -docstring 'goto file under selection' %{
+    nop %sh{ {
+        selection="$kak_selection"
+        regex="([^\s]+):(\d+):(\d+)"
 
-            # run command detached from the shell
-            { eval "printf %s '$kak_buffile' | $cmd" > ${output}; } > /dev/null 2>&1 < /dev/null &
+        file=$(printf %s "$selection" | sd -- "$regex" '$1')
+        line=$(printf %s "$selection" | sd -- "$regex" '$2')
+        col=$(printf %s "$selection" | sd -- "$regex" '$3')
 
-            # open in client
-            echo "show-sql '$output'"
-        }
-    }
-
-    define-command sql-test-inputs -hidden -params 2 %{
-        evaluate-commands %sh{
-            if [ -z "$2" ]; then
-                echo "fail '$1 is not set'"
-            elif [ -z "$kak_opt_sql_user" ]; then
-                echo "fail 'sql_user is not set'"
-            elif [ -z "$kak_opt_sql_db" ]; then
-                echo "fail 'sql_db is not set'"
-            elif [ -z "$kak_opt_sql_pass" ]; then
-                echo "fail 'sql_pass is not set'"
-            else
-                echo "nop"
-            fi
-        }
-    }
-
-    define-command show-sql -hidden -params 1 -docstring 'show sql in output buffer' %{
-        evaluate-commands %sh{
-            # determine client
-            client="$kak_client"
-            if [ ! -z "$kak_opt_toolsclient" ] && printf %s "$kak_client_list" | rg -Fqw "$kak_opt_toolsclient"; then
-                client="$kak_opt_toolsclient"
-            fi
-
-            # open in client
-            echo "eval -client '$client' 'edit! -fifo $1 *sqlout*
-                set-option buffer filetype sqlout
-                hook buffer BufClose .* %{ nop %sh{ rm -r $(dirname $1)} }'" \
-                | kak -p "${kak_session}"
-        }
-    }
-
-    declare-user-mode sql
-
-    map global sql s ':sql-exec-selection<ret>' -docstring 'execute current selection'
-    map global sql f ':sql-exec-file<ret>' -docstring 'execute current file'
-§
+        kcr -c "$kak_client" -s "$kak_session" send -- "edit $file;goto-line $line;goto-column $col"
+    } > /dev/null 2>&1 < /dev/null & }
+}
 
 #───────────────────────────────────#
 #            @filetypes             #
 #───────────────────────────────────#
 
-# TODO: move into vue filetype
-hook global BufCreate .*\.vue %{
-    set-option buffer filetype vue
-}
+hook global BufCreate .*kitty[.]conf %{ set-option buffer filetype ini }
 
-hook global WinSetOption filetype=vue %{
-    require-module html
+hook global BufCreate .*/kak/snippets/.* %{ set-option buffer filetype snippet }
 
-    hook window ModeChange pop:insert:.* -group "%val{hook_param_capture_1}-trim-indent"  html-trim-indent
-    hook window InsertChar '>' -group "%val{hook_param_capture_1}-indent" html-indent-on-greater-than
-    hook window InsertChar \n -group "%val{hook_param_capture_1}-indent" html-indent-on-new-line
-
-    hook -once -always window WinSetOption "filetype=.*" "
-        remove-hooks window ""%val{hook_param_capture_1}-.+""
-    "
-}
-
-hook -group vue-highlight global WinSetOption filetype=vue %{
-    add-highlighter "window/vue" ref html
-    hook -once -always window WinSetOption "filetype=.*" "
-        remove-highlighter ""window/vue""
-    "
-}
-
-hook global BufCreate .*kitty[.]conf %{
-    set-option buffer filetype ini
-}
-
-hook global BufCreate .*/kak/snippets/.* %{
-    set-option buffer filetype snippet
-}
-
-hook global BufCreate .*[.]less %{
-    set-option buffer filetype css
-}
+hook global BufCreate .*[.]less %{ set-option buffer filetype css }
 
 hook global WinSetOption filetype=(html|eex) %{
     set-option buffer comment_line        ''
@@ -410,12 +323,6 @@ define-command sql  %{ filetype 'sql' }
 #           @text objects           #
 #───────────────────────────────────#
 
-# TODO: finish command to select indentation without travelling past a newline after matching indentation
-define-command -hidden text-object-indent %{
-    # execute-keys -save-regs '/' -- 'Gh?\S<ret>hy/<c-r>"\S[^\n]*\n\n'
-    execute-keys -save-regs '/' -- '<a-/>\n\n<c-r>"\S<ret>gh?\S<ret>Hygi?^<c-r>"\S[^\n]*\n\n<ret>K<a-x>'
-}
-
 #───────────────────────────────────#
 #               @git                #
 #───────────────────────────────────#
@@ -477,8 +384,8 @@ map global yank g ': yank-line-commit "<ret>'              -docstring 'yank comm
 #              @ide                 #
 #───────────────────────────────────#
 
-map global normal <c-h> ': goto-next<ret>'             -docstring 'Jump to the previous grep match'
-map global normal <c-l> ': goto-prev<ret>'             -docstring 'Jump to the next grep match'
+map global normal <c-h> ': goto-prev<ret>'             -docstring 'Jump to the previous grep match'
+map global normal <c-l> ': goto-next<ret>'             -docstring 'Jump to the next grep match'
 map global user   h     ': make-previous-error<ret>'   -docstring 'Jump to the previous make error'
 map global user   l     ': make-next-error<ret>'       -docstring 'Jump to the next make error'
 map global user   k     ': lint-previous-message<ret>' -docstring 'Jump to the previous lint message'
@@ -490,7 +397,7 @@ define-command ide %{
     set-option global jumpclient main
 
     nop %sh{ {
-        send() {
+        send () {
             kcr -c "$kak_client" -s "$kak_session" send -- "$@"
         }
 
@@ -629,7 +536,7 @@ plug "kak-lsp/kak-lsp" do %{
         init-lsp-lang
     }
 
-    hook global WinSetOption filetype=(vue) %{
+    hook global WinSetOption filetype=(rust) %{
         init-semantic-tokens
     }
 
@@ -774,3 +681,7 @@ plug "Parasrah/i3.kak" config %{
         fi
     }
 }
+
+plug "Parasrah/vue.kak"
+
+plug "Parasrah/sql.kak"
