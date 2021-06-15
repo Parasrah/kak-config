@@ -136,6 +136,9 @@ map global view   <c-m> <ret> -docstring 'submit'
 map global insert <c-h> <backspace>
 map global normal <c-i> <tab>
 
+# other keys
+map global prompt <c-backspace> <c-w>
+
 # grep
 define-command rg -params 1.. -file-completion -docstring '' %{
     alias global goto-next grep-next-match
