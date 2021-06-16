@@ -47,24 +47,21 @@ try %{
         fi
     }
 
-    define-command -hidden set-popup-alias %{
-        alias global popup kitty-terminal
-    }
-
-    hook global ModuleLoaded kitty %{
-        set-popup-alias
-    }
+    define-command -hidden set-popup-alias %{ alias global popup kitty-terminal }
+    hook global ModuleLoaded kitty %{ set-popup-alias }
 
     evaluate-commands %sh{ kcr init kakoune }
 
-    map global user <ret> ' :connect-terminal<ret>' -docstring 'open terminal'
-
     declare-user-mode fzf
 
-    map global normal <c-p> ':enter-user-mode fzf<ret>' -docstring 'fuzzy finder mode'
-    map global fzf f ': + kcr-fzf-files -H --exclude ".git/*"<ret>' -docstring 'Open files'
-    map global fzf b ': + kcr-fzf-buffers<ret>' -docstring 'Open buffers'
-    map global fzf g ': + kcr-fzf-grep<ret>' -docstring 'Grep files'
+    map global normal <c-p> ':enter-user-mode fzf<ret>'                    -docstring 'fuzzy finder mode'
+    map global fzf    f     ': + kcr-fzf-files -H --exclude ".git/*"<ret>' -docstring 'Open files'
+    map global fzf    b     ': + kcr-fzf-buffers<ret>'                     -docstring 'Open buffers'
+    map global fzf    g     ': + kcr-fzf-grep<ret>'                        -docstring 'Grep files'
+
+    map global user   <ret> ' :connect-terminal<ret>'                      -docstring 'open terminal'
+    map global user   s     ' :select-objects<ret>'                        -docstring 'Select objects'
+    map global normal <c-'> ' :surround<ret>'                              -docstring 'Surround selection'
 
     define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
@@ -569,8 +566,6 @@ plug "andreyorst/smarttab.kak" defer smarttab %{
 plug "eraserhd/kak-ansi" do %{
     make
 }
-
-plug "alexherbo2/search.kak"
 
 plug "alexherbo2/replace-mode.kak" commit "a569d3df8311a0447e65348a7d48c2dea5415df0" config %{
     map global user R ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
