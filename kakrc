@@ -55,13 +55,13 @@ try %{
     declare-user-mode fzf
 
     map global normal <c-p> ':enter-user-mode fzf<ret>'                    -docstring 'fuzzy finder mode'
-    map global fzf    f     ': + kcr-fzf-files -H --exclude ".git/*"<ret>' -docstring 'Open files'
-    map global fzf    b     ': + kcr-fzf-buffers<ret>'                     -docstring 'Open buffers'
-    map global fzf    g     ': + kcr-fzf-grep<ret>'                        -docstring 'Grep files'
+    map global fzf    <f>   ': + kcr-fzf-files -H --exclude ".git/*"<ret>' -docstring 'Open files'
+    map global fzf    <b>   ': + kcr-fzf-buffers<ret>'                     -docstring 'Open buffers'
+    map global fzf    <g>   ': + kcr-fzf-grep<ret>'                        -docstring 'Grep files'
 
     map global user   <ret> ' :connect-terminal<ret>'                      -docstring 'open terminal'
-    map global user   s     ' :select-objects<ret>'                        -docstring 'Select objects'
-    map global normal <c-'> ' :surround<ret>'                              -docstring 'Surround selection'
+    map global user   <S>   ' :select-objects<ret>'                        -docstring 'Select objects'
+    map global user   <s>   ' :surround<ret>'                              -docstring 'Surround selection'
 
     define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
@@ -167,9 +167,6 @@ map global user f ':format<ret>' -docstring 'Format'
 # comment line
 map global normal '#'   ':comment-line<ret>'  -docstring 'comment selected lines'
 map global normal <a-3> ':comment-block<ret>' -docstring 'comment block'
-
-# select under cursor
-map global user S '<a-i>w*%s<c-r>/<ret>' -docstring 'select under cursor'
 
 # wrap
 map global normal = '|fmt -w $kak_opt_autowrap_column<ret>' -docstring 'format selection'
@@ -465,13 +462,13 @@ plug "kak-lsp/kak-lsp" do %{
     set-option global lsp_diagnostic_line_warning_sign '⚠'
 
     define-command lsp-hover-info -docstring 'show hover info' %{
-      set-option buffer lsp_show_hover_format 'printf %s "${lsp_info}"'
-      lsp-hover
+        set-option buffer lsp_show_hover_format 'printf %s "${lsp_info}"'
+        lsp-hover
     }
 
     define-command lsp-hover-diagnostics -docstring 'show hover diagnostics' %{
-      set-option buffer lsp_show_hover_format 'printf %s "${lsp_diagnostics}"'
-      lsp-hover
+        set-option buffer lsp_show_hover_format 'printf %s "${lsp_diagnostics}"'
+        lsp-hover
     }
 
     define-command lsp-restart -docstring 'restart lsp server' %{
@@ -520,16 +517,16 @@ plug "kak-lsp/kak-lsp" do %{
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
 
-        map window goto   <d>   '\:custom-lsp-definition<ret>'     -docstring 'definition'
-        map window goto   <r>   '\:custom-lsp-references<ret>'     -docstring 'references'
-        map window goto   <I>   '\:lsp-implementation<ret>'       -docstring 'goto implementation'
+        map window goto   <d>     '\: custom-lsp-definition<ret>'    -docstring 'definition'
+        map window goto   <r>     '\: custom-lsp-references<ret>'    -docstring 'references'
+        map window goto   <I>     '\: lsp-implementation<ret>'       -docstring 'goto implementation'
 
-        map window normal <'>   ':lsp-hover-info<ret>'            -docstring 'hover'
-        map window normal <a-'> ':lsp-hover-diagnostics<ret>'     -docstring 'diagnostics'
-        map window normal <c-.> ':lsp-code-actions<ret>'          -docstring 'code actions'
-        map window normal <c-r> ':lsp-rename-prompt<ret>'         -docstring 'rename'
-        map window normal <c-k> ':lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
-        map window normal <c-j> ':lsp-find-error<ret>'            -docstring 'goto next LSP error'
+        map window normal <ret>   ': lsp-hover-info<ret>'            -docstring 'hover'
+        map window normal <a-ret> ': lsp-hover-diagnostics<ret>'     -docstring 'diagnostics'
+        map window normal <c-.>   ': lsp-code-actions<ret>'          -docstring 'code actions'
+        map window normal <c-r>   ': lsp-rename-prompt<ret>'         -docstring 'rename'
+        map window normal <c-k>   ': lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
+        map window normal <c-j>   ': lsp-find-error<ret>'            -docstring 'goto next LSP error'
     }
 
     hook global WinSetOption filetype=(elm|elixir|eex|javascript|typescript|typescriptreact|javascriptreact|python|rust|vue) %{
