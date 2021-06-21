@@ -13,6 +13,7 @@ set-option global path '%/' './' '/usr/include'
 
 colorscheme gruvbox
 add-highlighter global/ show-matching
+add-highlighter global/ wrap -indent -word -marker '… '
 
 hook global WinSetOption comment_line=(.*) %{
     add-highlighter -override window/todo regex "\Q%val{hook_param_capture_1}\E\h*(TODO:|FIXME:|NOTE:|XXX:)[^\n]*" 1:rgb:ff8c00+Fb
@@ -476,12 +477,6 @@ plug "kak-lsp/kak-lsp" do %{
         lsp-start
     }
 
-    define-command custom-lsp-definition -hidden %{
-        alias global goto-next lsp-goto-next-match
-        alias global goto-prev lsp-goto-previous-match
-        lsp-definition
-    }
-
     define-command custom-lsp-references -hidden %{
         alias global goto-next lsp-goto-next-match
         alias global goto-prev lsp-goto-previous-match
@@ -517,7 +512,7 @@ plug "kak-lsp/kak-lsp" do %{
         lsp-enable-window
         set-option window lsp_language %val{hook_param_capture_1}
 
-        map window goto   <d>     '\: custom-lsp-definition<ret>'    -docstring 'definition'
+        map window goto   <d>     '\: lsp-definition<ret>'           -docstring 'definition'
         map window goto   <r>     '\: custom-lsp-references<ret>'    -docstring 'references'
         map window goto   <I>     '\: lsp-implementation<ret>'       -docstring 'goto implementation'
 
@@ -636,14 +631,6 @@ plug "Parasrah/kitty.kak" defer kitty %{
         } -- %val{buffile} %val{session} %val{client} %arg{@}
     }
 
-    define-command nvim -docstring 'Open current buffer in neovim' %{
-        kitty-overlay sh -c %{
-            kak_buffile=$1
-            cursor_line=$2
-            nvim $kak_buffile +$cursor_line -c "execute 'normal! zz'"
-        } -- %val{buffile} %val{cursor_line}
-    }
-
     map global normal <minus> ': nnn-current<ret>' -docstring 'open up nnn for the current buffer directory'
 }
 
@@ -656,6 +643,7 @@ plug "Parasrah/clipboard.kak" defer clipboard %{
     map global user c ':enter-user-mode copy<ret>' -docstring 'copy mode'
     map global copy b ' :set-register %opt{clipboard_register} %val{bufname}<ret>' -docstring 'copy bufname'
     map global copy g ' :yank-line-commit %opt{clipboard_register}<ret>' -docstring 'copy commit for current line'
+    map global copy s ' :set-register %opt{clipboard_register}<ret>' -docstring 'copy current selection'
 
     # TODO: create keymap for "py and "pp
 } demand
