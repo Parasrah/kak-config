@@ -55,14 +55,14 @@ try %{
 
     declare-user-mode fzf
 
-    map global normal <c-p> ':enter-user-mode fzf<ret>'                    -docstring 'fuzzy finder mode'
+    map global normal <c-p> ': enter-user-mode fzf<ret>'                   -docstring 'fuzzy finder mode'
     map global fzf    <f>   ': + kcr-fzf-files -H --exclude ".git/*"<ret>' -docstring 'Open files'
     map global fzf    <b>   ': + kcr-fzf-buffers<ret>'                     -docstring 'Open buffers'
     map global fzf    <g>   ': + kcr-fzf-grep<ret>'                        -docstring 'Grep files'
 
-    map global user   <ret> ' :connect-terminal<ret>'                      -docstring 'open terminal'
-    map global user   <S>   ' :select-objects<ret>'                        -docstring 'Select objects'
-    map global user   <s>   ' :surround<ret>'                              -docstring 'Surround selection'
+    map global user   <ret> ': connect-terminal<ret>'                      -docstring 'open terminal'
+    map global user   <S>   ': select-objects<ret>'                        -docstring 'Select objects'
+    map global user   <s>   ': surround<ret>'                              -docstring 'Surround selection'
 
     define-command nnn-persistent -params 0..1 -file-completion -docstring 'Open file with nnn' %{
         connect-terminal nnn %sh{echo "${@:-$(dirname "$kak_buffile")}"}
@@ -163,11 +163,11 @@ map global normal ,       <space>   -docstring 'remove all selections except mai
 map global normal <a-,>   <a-space> -docstring 'remove main selection'
 
 # formatting
-map global user f ':format<ret>' -docstring 'Format'
+map global user f ': format<ret>' -docstring 'Format'
 
 # comment line
-map global normal '#'   ':comment-line<ret>'  -docstring 'comment selected lines'
-map global normal <a-3> ':comment-block<ret>' -docstring 'comment block'
+map global normal '#'   ': comment-line<ret>'  -docstring 'comment selected lines'
+map global normal <a-3> ': comment-block<ret>' -docstring 'comment block'
 
 # wrap
 map global normal = '|fmt -w $kak_opt_autowrap_column<ret>' -docstring 'format selection'
@@ -209,7 +209,7 @@ map global insert <a-[> '<esc>: swap-insert-side<ret>'
 define-command goto-line -params 1 -docstring 'go to specified line' %{
     execute-keys %sh{
         case "$@" in
-            ''|*[!0-9]*) printf %s ':fail "line target must be a positive integer"<ret>' ;;
+            ''|*[!0-9]*) printf %s ': fail "line target must be a positive integer"<ret>' ;;
             *) printf %s "$@g" ;;
         esac
     }
@@ -224,7 +224,7 @@ define-command goto-column -params 1 -docstring 'go to specified character on li
         }
 
         case "$@" in
-            ''|*[!0-9]*) printf %s ':fail "line target must be a positive integer"<ret>' ;;
+            ''|*[!0-9]*) printf %s ': fail "line target must be a positive integer"<ret>' ;;
             *) build_keys "$@" ;;
         esac
     }
@@ -410,7 +410,7 @@ define-command ide %{
         i3 resize set width 15ppt; sleep 0.1
         i3 focus right; sleep 0.1
 
-        send i3-new-d ":rename-client<space>tools<ret>"; sleep 0.3
+        send i3-new-d ": rename-client<space>tools<ret>"; sleep 0.3
         send set global toolsclient tools
 
         i3 move up; sleep 0.1
@@ -516,8 +516,8 @@ plug "kak-lsp/kak-lsp" do %{
         map window goto   <r>     '\: custom-lsp-references<ret>'    -docstring 'references'
         map window goto   <I>     '\: lsp-implementation<ret>'       -docstring 'goto implementation'
 
-        map window normal <ret>   ': lsp-hover-info<ret>'            -docstring 'hover'
-        map window normal <a-ret> ': lsp-hover-diagnostics<ret>'     -docstring 'diagnostics'
+        map window normal <'>     ': lsp-hover-info<ret>'            -docstring 'hover'
+        map window normal <a-'>   ': lsp-hover-diagnostics<ret>'     -docstring 'diagnostics'
         map window normal <c-.>   ': lsp-code-actions<ret>'          -docstring 'code actions'
         map window normal <c-r>   ': lsp-rename-prompt<ret>'         -docstring 'rename'
         map window normal <c-k>   ': lsp-find-error --previous<ret>' -docstring 'goto previous LSP error'
@@ -567,15 +567,15 @@ plug "occivink/kakoune-snippets" config %{
     set-option global snippets_auto_expand false
 
     define-command snippets-trigger-line -docstring 'Execute any snippet triggers in current line' %{
-        execute-keys "giGls%opt{snippets_triggers_regex}<ret>:snippets-expand-trigger<ret>"
+        execute-keys "giGls%opt{snippets_triggers_regex}<ret>: snippets-expand-trigger<ret>"
     }
 
     define-command snippets-trigger-line-start -docstring 'Execute any snippet triggers before cursor' %{
-        execute-keys ";Gis%opt{snippets_triggers_regex}<ret>:snippets-expand-trigger<ret>"
+        execute-keys ";Gis%opt{snippets_triggers_regex}<ret>: snippets-expand-trigger<ret>"
     }
 
     define-command snippets-trigger-last-word -docstring 'Execute any snippet triggers in last WORD before cursor' %{
-        execute-keys ";b<a-I>s%opt{snippets_triggers_regex}<ret>:snippets-expand-trigger<ret>"
+        execute-keys ";b<a-I>s%opt{snippets_triggers_regex}<ret>: snippets-expand-trigger<ret>"
     }
 
     define-command -hidden reenter-insert-mode -docstring 're-enter insert mode after replacing snippet' %{
@@ -640,12 +640,10 @@ plug "Parasrah/casing.kak"
 
 plug "Parasrah/clipboard.kak" defer clipboard %{
     declare-user-mode copy
-    map global user c ':enter-user-mode copy<ret>' -docstring 'copy mode'
-    map global copy b ' :set-register %opt{clipboard_register} %val{bufname}<ret>' -docstring 'copy bufname'
-    map global copy g ' :yank-line-commit %opt{clipboard_register}<ret>' -docstring 'copy commit for current line'
-    map global copy s ' :set-register %opt{clipboard_register}<ret>' -docstring 'copy current selection'
-
-    # TODO: create keymap for "py and "pp
+    map global user c ': enter-user-mode copy<ret>'                                -docstring 'copy mode'
+    map global copy b ': set-register %opt{clipboard_register} %val{bufname}<ret>' -docstring 'copy bufname'
+    map global copy g ': yank-line-commit %opt{clipboard_register}<ret>'           -docstring 'copy commit for current line'
+    map global copy s ': set-register %opt{clipboard_register}<ret>'               -docstring 'copy current selection'
 } demand
 
 plug "Parasrah/hestia.kak" defer hestia %{
