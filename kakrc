@@ -2,9 +2,9 @@
 #             @options              #
 #───────────────────────────────────#
 
-set-option global startup_info_version 20200901464
+set-option global startup_info_version 20200901
 
-set-option global ui_options 'terminal_assistant=cat' 'terminal_set_title=false'
+set-option global ui_options 'terminal_assistant=cat' 'terminal_set_title=false' 'ncurses_set_title=false'
 set-option global path '%/' './' '/usr/include'
 
 #───────────────────────────────────#
@@ -52,6 +52,8 @@ try %{
     hook global ModuleLoaded kitty %{ set-popup-alias }
 
     evaluate-commands %sh{ kcr init kakoune }
+
+    enable-auto-pairs
 
     declare-user-mode fzf
 
@@ -318,10 +320,6 @@ define-command json %{ filetype 'json' }
 define-command sql  %{ filetype 'sql' }
 
 #───────────────────────────────────#
-#           @text objects           #
-#───────────────────────────────────#
-
-#───────────────────────────────────#
 #               @git                #
 #───────────────────────────────────#
 
@@ -345,13 +343,13 @@ define-command gitui -docstring 'open gitui as overlay on current buffer' %{
     set-popup-alias
 }
 
-map global git b ': toggle-git-blame<ret>'         -docstring 'toggle blame'
-map global git i ': git status<ret>'               -docstring 'git status'
-map global git c ': git commit<ret>'               -docstring 'git commit'
-map global git d ': git diff %val{buffile}<ret>'   -docstring 'git diff (current file)'
-map global git l ': git log -- %val{bufname}<ret>' -docstring 'git log (current file)'
-map global git s ': enter-user-mode git-show<ret>' -docstring 'git show mode'
-map global git u ': gitui<ret>'                    -docstring 'open gitui'
+map global git b ': toggle-git-blame<ret>'            -docstring 'toggle blame'
+map global git i ': git status<ret>'                  -docstring 'git status'
+map global git c ': git commit<ret>'                  -docstring 'git commit'
+map global git d ': git diff @ -- %val{buffile}<ret>' -docstring 'git diff (current file)'
+map global git l ': git log -- %val{bufname}<ret>'    -docstring 'git log (current file)'
+map global git s ': enter-user-mode git-show<ret>'    -docstring 'git show mode'
+map global git u ': gitui<ret>'                       -docstring 'open gitui'
 
 declare-user-mode git-show
 
@@ -363,7 +361,7 @@ define-command git-show-line-commit %{
 }
 
 map global git-show s ': git show %val{selection}<ret>' -docstring 'show current selection'
-map global git-show l ": git-show-line-commit<ret>" -docstring 'show line commit'
+map global git-show l ': git-show-line-commit<ret>'     -docstring 'show line commit'
 
 #───────────────────────────────────#
 #               @yank               #
@@ -559,7 +557,7 @@ plug "eraserhd/kak-ansi" do %{
     make
 }
 
-plug "alexherbo2/replace-mode.kak" commit "a569d3df8311a0447e65348a7d48c2dea5415df0" config %{
+plug "Parasrah/replace-mode.kak" config %{
     map global user R ': enter-replace-mode<ret>' -docstring 'Enter replace mode'
 }
 
