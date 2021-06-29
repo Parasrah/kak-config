@@ -137,7 +137,14 @@ map global insert <c-h> <backspace>
 map global normal <c-i> <tab>
 
 # other keys
-map global prompt <c-backspace> <c-w>
+map global insert <c-w> '<a-;>: exec -draft bd<ret>'
+
+# branching
+define-command true -params 2 %{ eval %arg{1} }
+define-command false -params 2 %{ eval %arg{2} }
+define-command if -params 3 %{ eval -verbatim %arg{1} %arg{2} %arg{3} }
+define-command when -params 3 %{ eval -verbatim %arg{1} %arg{2} nop }
+define-command unless -params 3 %{ eval -verbatim %arg{1} nop %arg{2} }
 
 # grep
 define-command rg -params 1.. -file-completion -docstring '' %{
@@ -179,34 +186,6 @@ map global insert <c-l> '<del>' -docstring 'delete character to right'
 
 # whitespace
 define-command clean-whitespace %{ execute-keys -draft '<percent>s^<space><plus>$<ret>d' }
-
-# jump to left/right of selection
-# TODO: fix this for selection w/ length of 1
-define-command swap-insert-side %{
-    execute-keys -with-hooks %sh{
-        selection="$kak_selection_desc"
-        regex="([0-9]+)[.]([0-9]+),([0-9]+)[.]([0-9]+)"
-
-        a1=$(printf %s "$selection" | sd -- "$regex" '$1')
-        a2=$(printf %s "$selection" | sd -- "$regex" '$2')
-        b1=$(printf %s "$selection" | sd -- "$regex" '$3')
-        b2=$(printf %s "$selection" | sd -- "$regex" '$4')
-
-        if [ "$a1" -eq "$b1" ]; then
-            if [ "$a2" -gt "$b2" ]; then
-                printf %s 'a'
-            else
-                printf %s 'i'
-            fi
-        elif [ "$a1" -gt "$b1" ]; then
-            printf %s 'a'
-        else
-            printf %s 'i'
-        fi
-    }
-}
-
-map global insert <a-[> '<esc>: swap-insert-side<ret>'
 
 define-command goto-line -params 1 -docstring 'go to specified line' %{
     execute-keys %sh{
@@ -329,13 +308,15 @@ declare-user-mode git
 
 declare-option -hidden bool git_blame_enabled false
 
-define-command -hidden toggle-git-blame %{ evaluate-commands %sh{
-    if [ "$kak_opt_git_blame_enabled" = 'true' ]; then
-        printf %s 'git hide-blame; set-option window git_blame_enabled false'
-    else
-        printf %s 'git blame; set-option window git_blame_enabled true'
-    fi
-} }
+define-command -hidden toggle-git-blame %{
+    if %opt{git_blame_enabled} %{
+        git hide-blame
+        set-option window git_blame_enabled false
+    } %{
+        git blame
+        set-option window git_blame_enabled true
+    }
+}
 
 define-command gitui -docstring 'open gitui as overlay on current buffer' %{
     alias global popup kitty-overlay
