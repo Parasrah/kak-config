@@ -224,6 +224,20 @@ define-command goto-file -params 0 -docstring 'goto file under selection' %{
     } > /dev/null 2>&1 < /dev/null & }
 }
 
+
+#───────────────────────────────────#
+#               @test               #
+#───────────────────────────────────#
+
+declare-option -hidden int test_current_line 0
+
+hook -group test-highlight global WinSetOption filetype=test %{
+    add-highlighter window/test group
+    add-highlighter window/test/ regex "^((?:\w:)?[^:\n]+):(\d+):(\d+)?" 1:cyan 2:green 3:green
+    add-highlighter window/test/ line %{%opt{test_current_line}} default+b
+    hook -once -always window WinSetOption filetype=.* %{ remove-highlighter window/test }
+}
+
 #───────────────────────────────────#
 #            @filetypes             #
 #───────────────────────────────────#
