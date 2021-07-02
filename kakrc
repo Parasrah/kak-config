@@ -53,8 +53,6 @@ try %{
 
     evaluate-commands %sh{ kcr init kakoune }
 
-    enable-auto-pairs
-
     declare-user-mode fzf
 
     map global normal <c-p> ': enter-user-mode fzf<ret>'                   -docstring 'fuzzy finder mode'
@@ -222,20 +220,6 @@ define-command goto-file -params 0 -docstring 'goto file under selection' %{
 
         kcr -c "$kak_client" -s "$kak_session" send -- "edit $file;goto-line $line;goto-column $col"
     } > /dev/null 2>&1 < /dev/null & }
-}
-
-
-#───────────────────────────────────#
-#               @test               #
-#───────────────────────────────────#
-
-declare-option -hidden int test_current_line 0
-
-hook -group test-highlight global WinSetOption filetype=test %{
-    add-highlighter window/test group
-    add-highlighter window/test/ regex "^((?:\w:)?[^:\n]+):(\d+):(\d+)?" 1:cyan 2:green 3:green
-    add-highlighter window/test/ line %{%opt{test_current_line}} default+b
-    hook -once -always window WinSetOption filetype=.* %{ remove-highlighter window/test }
 }
 
 #───────────────────────────────────#
@@ -626,6 +610,26 @@ plug "Parasrah/kitty.kak" defer kitty %{
 
     map global normal <minus> ': nnn-current<ret>' -docstring 'open up nnn for the current buffer directory'
 }
+
+plug "Parasrah/test.kak" defer test %{
+    hook global WinSetOption filetype=elixir %{
+        set-option window test_cmd 'mix test --no-color'
+        set-option window test_current_cmd "mix test --no-color -- '%val{buffile}'"
+        set-option global test_match_regex '^[ \t]*(test/[^:\n]+):(\d+):(\d+)? \(test\)'
+    }
+
+    define-command -override test-current -params .. -docstring 'run tests in current file' %{
+        alias global goto-next test-next-match
+        alias global goto-prev test-previous-match
+        test-impl %opt{test_current_cmd} %arg{@}
+    }
+
+    define-command -override test -params .. -docstring 'run tests' %{
+        alias global goto-next test-next-match
+        alias global goto-prev test-previous-match
+        test-impl %opt{test_cmd} %arg{@}
+    }
+} demand
 
 plug "Parasrah/filelist.kak"
 
