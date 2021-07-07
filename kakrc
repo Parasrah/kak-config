@@ -4,7 +4,7 @@
 
 set-option global startup_info_version 20200901
 
-set-option global ui_options 'terminal_assistant=cat' 'terminal_set_title=false' 'ncurses_set_title=false'
+set-option global ui_options 'terminal_assistant=none' 'terminal_set_title=false' 'ncurses_assistant=none' 'ncurses_set_title=false'
 set-option global path '%/' './' '/usr/include'
 
 #───────────────────────────────────#
@@ -133,9 +133,6 @@ map global view   <c-m> <ret> -docstring 'submit'
 
 map global insert <c-h> <backspace>
 map global normal <c-i> <tab>
-
-# other keys
-map global insert <c-w> '<a-;>: exec -draft bd<ret>'
 
 # branching
 define-command true -params 2 %{ eval %arg{1} }
