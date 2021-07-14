@@ -282,6 +282,13 @@ hook global WinSetOption filetype=(typescript|typescriptreact|javascript|javascr
     }
 }
 
+hook global WinSetOption filetype=(yaml) %{
+    set-option window lintcmd 'yamllint --format parsable'
+    hook window BufWritePost -group lint-yaml .* %{
+        lint
+    }
+}
+
 hook global WinSetOption filetype=(html) %{
     set-option window formatcmd "npx prettier --stdin-filepath %val{buffile}"
 }
