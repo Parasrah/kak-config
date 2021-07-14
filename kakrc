@@ -134,6 +134,30 @@ map global view   <c-m> <ret> -docstring 'submit'
 map global insert <c-h> <backspace>
 map global normal <c-i> <tab>
 
+# delete
+define-command delete-wordwise-left %{
+    evaluate-commands %sh{
+        if [ $kak_cursor_column -gt 1 ]; then
+            printf %s\\n "exec -draft 'bd'"
+        else
+            printf %s\\n "exec '<backspace>'"
+        fi
+    }
+}
+
+# write
+declare-option -hidden int write_count 0
+
+define-command write-with-counter %{
+    set-option -add global write_count 1
+    write
+    echo "saved file (%opt{write_count})"
+}
+
+alias global w write-with-counter
+
+map global insert <c-w> '<a-semicolon>: delete-wordwise-left<ret>'
+
 # branching
 define-command true -params 2 %{ eval %arg{1} }
 define-command false -params 2 %{ eval %arg{2} }
