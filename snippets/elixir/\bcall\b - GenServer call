@@ -1,0 +1,5 @@
+def handle_call(${1}, _from, %__MODULE__{} = state) do
+	${2}
+
+	{:reply, nil, state}
+end${0}

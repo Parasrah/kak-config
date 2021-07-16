@@ -1,0 +1,5 @@
+def handle_cast(${1}, %__MODULE__{} = state) do
+	${2}
+
+	{:noreply, state}
+end
